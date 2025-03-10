@@ -1,0 +1,11 @@
+typescript
+express
+nodemon
+dotenv
+mongoose
+
+
+102.17.193.150
+username = diary 
+password = CdLL8LGkADMCxtvJ
+mongodb+srv://diary:CdLL8LGkADMCxtvJ@cluster0.1jmqh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
