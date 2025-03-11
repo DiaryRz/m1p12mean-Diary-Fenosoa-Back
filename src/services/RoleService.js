@@ -1,17 +1,31 @@
-const Role = require('../models/Role');
-const mongoose = require('../connexion/db');
+const Role = require("../models/Role");
+const mongoose = require("../connexion/db");
 
 async function addRole(role_name) {
-    try {
-        const role = new Role({ role_name });
-        await role.save();
-        return role;
-    } catch (error) {
-        console.error('Error during role addition:', error);
-        throw error;
-    }
+  try {
+    const role = new Role({ role_name });
+    await role.save();
+    return role;
+  } catch (error) {
+    console.error("Error during role addition:", error);
+    throw error;
+  }
+}
+
+async function getAllRole() {
+  return await Role.find();
+}
+
+async function getRoleById(id) {
+  return await Role.findById(id);
+}
+async function editRole(id, role_label) {
+  return await Role.findByIdAndUpdate(id, { role_label });
 }
 
 module.exports = {
-    addRole
+  addRole,
+  getRoleById,
+  getAllRole,
+  editRole,
 };
