@@ -7,11 +7,12 @@ const UserSchema = new mongoose.Schema({
        firstname: String,
        mail: String,
        phone: String,
-       password_hash: String,
+       password: String,
        birth_date: Date,
        CIN: String,
        gender: String,
-       role_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' }
+       role_id: { type: String, ref: 'Role', required: true } ,
+       status : { type: Number , default: 0 } //0 when user is created, 1 when user is fired
    });
 
 UserSchema.pre('save', async function(next) {

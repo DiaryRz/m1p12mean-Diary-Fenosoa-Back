@@ -1,13 +1,20 @@
 const express = require('express');
 const RoleRoutes = require('./src/routes/RoleRoutes');
+const UserRoutes = require('./src/routes/UserRoute');
+const authRoutes = require("./src/routes/authRoute");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const cookieParser = require("cookie-parser");
+
 app.use(express.json()); 
+app.use(cookieParser());
 
 //initialisation des routes
 app.use('/role', RoleRoutes);
+app.use("/auth", authRoutes);
+app.use('/users', UserRoutes);
 
 //initialisation de la racine /
 app.get('/', (req, res) => {

@@ -14,7 +14,7 @@ class RoleController {
 
     async getRole(req, res) {
         try {
-            const role = await roleService.getAllrole();
+            const role = await roleService.getAllRoles();
             res.json(role);
         } catch (error) {
             res.status(500).json({ message: 'Erreur lors de la récupération des roles', error });
