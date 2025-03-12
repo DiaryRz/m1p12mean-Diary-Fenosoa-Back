@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
   birth_date: Date,
   CIN: String,
   gender: { type: String, enum: ["homme", "femme"], default: "homme" },
-  role: { type: mongoose.Schema.Types.ObjectId, ref: "Role" },
+  role: { type: String, ref: "Role" },
 });
 
 UserSchema.pre("save", async function (next) {
