@@ -124,7 +124,31 @@ class AuthController {
     }
   }
 
-  async verify(req, res) {}
+  async verify(req, res) {
+    let access_token = req.cookies["access_token"];
+
+    if (access_token) {
+      const tok_val = decodeToken(access_token);
+      if (!tok_val.user_id) {
+        res.clearCookie("access_token");
+        return res.status(401).json({ message: "access token error" });
+      }
+      try {
+        const user = await userService.getUserById(tok_val.user_id);
+        if (user) {
+          return res
+            .status(200)
+            .json({ message: "token valid", token: tok_val });
+        }
+        return res.status(409).json({ message: "User not found" });
+      } catch (error) {
+        return res
+          .status(500)
+          .json({ message: `error while verifying token ${error}` });
+      }
+    }
+    return res.status(404).json({ message: `not logged in` });
+  }
 }
 
 module.exports = AuthController;
