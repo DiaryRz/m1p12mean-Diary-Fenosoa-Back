@@ -79,8 +79,8 @@ const register = async (req, res) => {
     });
     res
       .status(201)
-      .cookie("access_token", token)
-      .json({ access_token: token });
+      .cookie("accessToken", token)
+      .json({ accessToken: token });
   } catch (error) {
     res
       .status(500)
