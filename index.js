@@ -14,7 +14,7 @@ app.use(cookieParser());
 
 //initialisation des routes
 app.use('/role', RoleRoutes);
-app.use("/auth", authRoutes);
+app.use('/auth', authRoutes);
 app.use('/users', UserRoutes);
 
 //initialisation de la racine /

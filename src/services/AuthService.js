@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
+const dotenv = require('dotenv').config();
+const userService = require("../services/UserService");
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
@@ -47,12 +49,56 @@ const verifyToken = (req, res, next) => {
 
 
 const register = async (req, res) => {
-  const { name ,firstname ,mail , phone , password ,birth_date , CIN,gender , role_id , status } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ name ,firstname ,mail , phone , hashedPassword ,birth_date , CIN,gender , role_id , status });
-  await user.save();
-  res.json("User registered");
+  try {
+    const { name, firstname, mail, phone, password, birth_date, CIN, gender, role_id, status } = req.body;
+    
+    console.log("Starting registration process");
+    
+    // Validate required fields
+    if (!mail || !phone || !CIN || !password) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Check user existence with detailed logging
+    console.log("Checking user existence...");
+    const user_exist = await userService.userExist([
+      { mail },
+      { CIN },
+      { phone }
+    ]);
+    console.log("User exist check result:", user_exist);
+
+    if (user_exist) {
+      return res.status(409).json({ message: "User already exists" });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(parseInt(process.env.hash_salt));
+    const password_hash = await bcrypt.hash(password, salt);
+
+    // Create new user object
+    const newUser = {
+      name,
+      firstname,
+      mail,
+      phone,
+      password: password_hash,
+      birth_date,
+      CIN,
+      gender,
+      role_id,
+      status
+    };
+
+    const result = await userService.createUser(newUser);
+    return res.status(201).json(result);
+
+  } catch (error) {
+    console.error("Registration error:", error);
+    return res.status(500).json({ message: "Registration failed", error: error.message });
+  }
 };
+
 
 const login = async (req, res) => {
   const { mail, password } = req.body;

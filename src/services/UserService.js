@@ -1,6 +1,7 @@
 const User = require('../models/Users');
 const bcrypt = require('bcryptjs');
 const Role = require('../models/Roles');
+const dotenv = require('dotenv').config();
 
 class UserService {
     async createUser(userData) {
@@ -11,7 +12,7 @@ class UserService {
                 throw new Error('Invalid role_id');
             }
             
-            const hashedPassword = await bcrypt.hash(userData.password, 10);
+            const hashedPassword = await bcrypt.hash(userData.password, parseInt(process.env.hash_salt));
             const user = new User({
                 ...userData,
                 password: hashedPassword
@@ -50,10 +51,26 @@ class UserService {
     async updateUser(id, userData) {
         try {
             if (userData.password) {
-                userData.password = await bcrypt.hash(userData.password, 10);
+                userData.password = await bcrypt.hash(userData.password, parseInt(process.env.hash_salt));
             }
             return await User.findByIdAndUpdate(id, userData, { new: true });
         } catch (error) {
+            throw error;
+        }
+    }
+
+    async userExist(conditions) {
+        try {
+            console.log("UserService: Checking existence with conditions:", conditions);
+            
+            const query = { $or: conditions };
+            const existingUser = await User.findOne(query);
+            
+            console.log("UserService: User exists:", !!existingUser);
+            return !!existingUser;
+            
+        } catch (error) {
+            console.error("UserService: Error checking user existence:", error);
             throw error;
         }
     }
