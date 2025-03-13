@@ -1,11 +1,11 @@
 const User = require('../models/Users');
 const bcrypt = require('bcryptjs');
 const Role = require('../models/Roles');
-const dotenv = require('dotenv').config();
 
 class UserService {
     async createUser(userData) {
         try {
+            console.log("UserService: Creating user with data:"+userData);
             // Verify if role exists first
             const roleExists = await Role.findById(userData.role_id);
             if (!roleExists) {

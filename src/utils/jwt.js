@@ -1,13 +1,16 @@
 const jwt = require("jsonwebtoken");
 
-function generateAccessToken(data, expire) {
-  if (expire === undefined) expire = "3600s";
-  return jwt.sign(data, process.env.JWT_SECRET_KEY, { expiresIn: expire });
+function generateAccessToken(user) {
+  return accessToken = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.ACCESS_SECRET,
+    { expiresIn: "1h" }
+  );
 }
 
 function decodeToken(token) {
   try {
-    var decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    var decoded = jwt.verify(token, process.env.ACCESS_SECRET);
     return decoded;
   } catch (err) {
     return err;
