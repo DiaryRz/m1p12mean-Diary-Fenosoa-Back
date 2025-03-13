@@ -19,7 +19,6 @@ const generateTokens = (user) => {
 };
 
 const verifyToken = (req, res, next) => {
-  console.log("Middleware executed");
 
   let token = req.cookies?.accessToken;
   
@@ -62,7 +61,7 @@ const register = async (req, res) => {
         phone: user_exist.phone == phone,
       };
       return res.status(409).json({
-        message: "Error this user alredy exist",
+        message: "This user alredy exist",
         field: field_taken,
       });
     }
@@ -78,7 +77,6 @@ const register = async (req, res) => {
     const token = generateAccessToken({
       id: user._id, role: user.role
     });
-    console.log("Token: ", token);
     res
       .status(201)
       .cookie("access_token", token)

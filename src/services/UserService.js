@@ -61,12 +61,9 @@ class UserService {
 
     async userExist(conditions) {
         try {
-            console.log("UserService: Checking existence with conditions:", conditions);
-            
             const query = { $or: conditions };
             const existingUser = await User.findOne(query);
             
-            console.log("UserService: User exists:", !!existingUser);
             return !!existingUser;
             
         } catch (error) {

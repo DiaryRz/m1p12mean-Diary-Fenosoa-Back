@@ -3,6 +3,7 @@ const generateCustomId = require("../utils/idGenerator");
 
 const UserSchema = new mongoose.Schema({
        _id: { type: String },
+       date_registration: { type: Date, default: Date.now },
        name: String,
        firstname: String,
        mail: String,
