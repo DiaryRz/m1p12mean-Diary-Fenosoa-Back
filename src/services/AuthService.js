@@ -90,8 +90,8 @@ const register = async (req, res) => {
 
 
 const login = async (req, res) => {
-  const { mail, password } = req.body;
-    const user = await User.findOne({ mail });
+  const { mail, password , role } = req.body;
+  const user = await User.findOne({ mail, role_id: role });
     if (!user) return res.status(400).json("User not found");
 
   const validPassword = await bcrypt.compare(password, user.password);
