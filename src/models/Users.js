@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const generateCustomId = require('../utils/idGenerator');
+const mongoose = require("mongoose");
+const generateCustomId = require("../utils/idGenerator");
 
 const UserSchema = new mongoose.Schema({
        _id: { type: String },
@@ -15,13 +15,13 @@ const UserSchema = new mongoose.Schema({
        status : { type: Number , default: 0 } //0 when user is created, 1 when user is fired
    });
 
-UserSchema.pre('save', async function(next) {
-    if (this.isNew) {
-        this._id = await generateCustomId('User', 'user');
-    }
-    next();
+UserSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    this._id = await generateCustomId("User", "user");
+  }
+  next();
 });
 
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model("User", UserSchema);
 
 module.exports = User;

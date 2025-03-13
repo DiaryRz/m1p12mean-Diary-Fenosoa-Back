@@ -4,7 +4,7 @@ const { verifyToken } = require('../services/AuthService');
 
 const router = express.Router();
 
-roleController = new RoleController();
+const roleController = new RoleController();
 
 router.post('/add', verifyToken , roleController.addRole);
 router.get('/all', verifyToken , roleController.getRole);
