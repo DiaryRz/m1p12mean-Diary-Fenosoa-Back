@@ -8,32 +8,33 @@ const generateTokens = (user) => {
   const accessToken = jwt.sign(
     { id: user._id, role: user.role },
     process.env.ACCESS_SECRET,
-    { expiresIn: "1h" }
+    { expiresIn: "1h" },
   );
   const refreshToken = jwt.sign(
     { id: user._id, role: user.role },
     process.env.REFRESH_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
   return { accessToken, refreshToken };
 };
 
 const verifyToken = (req, res, next) => {
-
   let token = req.cookies?.accessToken;
-  
+
   // If no cookie token, try Authorization header
   if (!token) {
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers["authorization"];
     if (authHeader) {
-      token = authHeader.split(' ')[1];
+      token = authHeader.split(" ")[1];
     }
   }
 
   // No token found in either place
   if (!token) {
     console.log("No token provided");
-    return res.status(401).json({ message: "Access Denied - No token provided" });
+    return res
+      .status(401)
+      .json({ message: "Access Denied - No token provided" });
   }
 
   try {
@@ -47,7 +48,17 @@ const verifyToken = (req, res, next) => {
 };
 
 const register = async (req, res) => {
-  const { name, firstname, mail, phone, password, birth_date, CIN, gender, role_id} = req.body;
+  const {
+    name,
+    firstname,
+    mail,
+    phone,
+    password,
+    birth_date,
+    CIN,
+    gender,
+    role_id,
+  } = req.body;
   try {
     const user_exist = await userService.userExist([
       { mail: mail },
@@ -72,29 +83,49 @@ const register = async (req, res) => {
   }
 
   try {
-    const user = await userService.createUser({ name, firstname, mail, phone, password, birth_date, CIN, gender, role_id });
+    const user = await userService.createUser({
+      name,
+      firstname,
+      mail,
+      phone,
+      password,
+      birth_date,
+      CIN,
+      gender,
+      role_id,
+    });
 
     const token = generateAccessToken({
-      id: user._id, role: user.role
+      id: user._id,
+      role: user.role,
     });
-    res
-      .status(201)
-      .cookie("accessToken", token)
-      .json({ accessToken: token });
+    res.status(201).cookie("accessToken", token).json({ accessToken: token });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Erreur lors de l'ajout de la personne", error });
   }
-}
+};
 
 const login = async (req, res) => {
-  const { mail, password , role } = req.body;
+  const { mail, password, role } = req.body;
   const user = await User.findOne({ mail, role_id: role });
-    if (!user) return res.status(400).json({message: "User not found" , , error: { mail: true, phone: true , password: false} });
+  if (!user)
+    return res
+      .status(400)
+      .json({
+        message: "User not found",
+        error: { mail: true, phone: true, password: false },
+      });
 
   const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) return res.status(400).json({message: "Invalid password" , error: { mail: false , phone: false , password: true} });
+  if (!validPassword)
+    return res
+      .status(400)
+      .json({
+        message: "Invalid password",
+        error: { mail: false, phone: false, password: true },
+      });
 
   const { accessToken, refreshToken } = generateTokens(user);
   res.cookie("accessToken", accessToken, { httpOnly: true });
@@ -128,5 +159,5 @@ module.exports = {
   login,
   refresh,
   logout,
-  verifyToken
+  verifyToken,
 };
