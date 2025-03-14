@@ -5,6 +5,7 @@ const CarCategorySchema = new mongoose.Schema({
     _id: { type: String },
     date_creation: { type: Date, default: Date.now },
     type_name: { type: String, required: true },
+    type_desc: { type: String, required: true },
     mult_price: { type: Number, required: true },
     mult_time: { type: Number, required: true }
 });
