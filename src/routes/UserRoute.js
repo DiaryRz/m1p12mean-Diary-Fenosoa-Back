@@ -9,6 +9,8 @@ router.get('/manager', verifyToken, userController.getAllManager);
 router.get('/client', verifyToken, userController.getAllUsers);
 router.get('/mecanicien', verifyToken, userController.getAllMecanic);
 
+router.put('/fire/:id', verifyToken, userController.fireUser);
+
 router.post('/', verifyToken, userController.createUser);
 router.get('/', verifyToken, userController.getAllUsers);
 router.get('/:id', verifyToken, userController.getUserById);

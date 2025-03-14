@@ -1,6 +1,7 @@
 const User = require('../models/Users');
 const bcrypt = require('bcryptjs');
 const Role = require('../models/Roles');
+const UserHistoryService = require('./UserHistoryService');
 
 class UserService {
     async createUser(userData) {
@@ -68,6 +69,21 @@ class UserService {
             
         } catch (error) {
             console.error("UserService: Error checking user existence:", error);
+            throw error;
+        }
+    }
+
+    async FireUser(id) {
+        try {
+            console.log("UserService: Firing user with id:"+id);
+            const user = await User.findById(id);
+            console.log("UserService: Firing user with id:"+id);
+            if (user) {
+                UserHistoryService.createUserHistory(user);
+                user.status = 1;
+                return await user.save();
+            }
+        } catch (error) {
             throw error;
         }
     }

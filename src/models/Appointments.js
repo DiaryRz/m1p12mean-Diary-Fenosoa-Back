@@ -9,7 +9,7 @@ const AppointmentSchema = new mongoose.Schema({
     services: [{ type: String, ref: 'Service' }],
     total_price: { type: Number, required: true },
     total_payed: { type: Number, default: 0 },
-    status: { type: String, default: 'on_hold' },
+    status: { type: String, default: 'en attente' },
     date_appointment: { type: Date }
 });
 
