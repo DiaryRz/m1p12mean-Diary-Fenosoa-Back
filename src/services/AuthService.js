@@ -88,14 +88,13 @@ const register = async (req, res) => {
   }
 }
 
-
 const login = async (req, res) => {
   const { mail, password , role } = req.body;
   const user = await User.findOne({ mail, role_id: role });
-    if (!user) return res.status(400).json("User not found");
+    if (!user) return res.status(400).json({message: "User not found" , , error: { mail: true, phone: true , password: false} });
 
   const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) return res.status(400).json("Invalid password");
+  if (!validPassword) return res.status(400).json({message: "Invalid password" , error: { mail: false , phone: false , password: true} });
 
   const { accessToken, refreshToken } = generateTokens(user);
   res.cookie("accessToken", accessToken, { httpOnly: true });
