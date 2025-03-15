@@ -9,7 +9,7 @@ router.post("/login", authService.login);
 
 router.post("/refresh", authService.refresh);
 
-router.post("/logout", verifyToken , authService.logout);
+router.post("/logout", verifyToken, authService.logout);
 
 router.get("/protected", authService.verifyToken, (req, res) => {
   res.json(`Welcome ${req.user.role}`);

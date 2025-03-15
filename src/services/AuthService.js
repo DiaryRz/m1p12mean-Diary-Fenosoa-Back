@@ -34,7 +34,7 @@ const verifyToken = (req, res, next) => {
     console.log("No token provided");
     return res
       .status(401)
-      .json({ message: "Access Denied - No token provided" });
+      .json({ message: "Access Denied - No token provided", ok: false });
   }
 
   try {
@@ -43,7 +43,7 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (err) {
     console.log("Invalid Token");
-    return res.status(403).json({ message: "Invalid Token" });
+    return res.status(403).json({ message: "Invalid Token", ok: false });
   }
 };
 
@@ -111,25 +111,22 @@ const login = async (req, res) => {
   const { mail, password, role } = req.body;
   const user = await User.findOne({ mail, role_id: role });
   if (!user)
-    return res
-      .status(400)
-      .json({
-        message: "User not found",
-        error: { mail: true, phone: true, password: false },
-      });
+    return res.status(400).json({
+      message: "User not found",
+      error: { mail: true, phone: true, password: false },
+    });
 
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword)
-    return res
-      .status(400)
-      .json({
-        message: "Invalid password",
-        error: { mail: false, phone: false, password: true },
-      });
+    return res.status(400).json({
+      message: "Invalid password",
+      error: { mail: false, phone: false, password: true },
+    });
 
   const { accessToken, refreshToken } = generateTokens(user);
   res.cookie("accessToken", accessToken, { httpOnly: true });
   res.cookie("refreshToken", refreshToken, { httpOnly: true });
+  res.cookie("user_id", user._id, { httpOnly: true });
   res.json({ accessToken, refreshToken, userId: user._id });
 };
 
