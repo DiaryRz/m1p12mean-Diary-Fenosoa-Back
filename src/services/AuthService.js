@@ -3,6 +3,12 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
 const userService = require("../services/UserService");
 const { generateAccessToken, decodeToken } = require("../utils/jwt.js");
+const cookie_config = {
+  path: "/", // This is crucial - makes cookie available to entire domain
+  httpOnly: false, // If you want the cookie to be inaccessible to JavaScript
+  secure: process.env.NODE_ENV !== "development", // Use secure in production
+  sameSite: "None",
+};
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
@@ -20,7 +26,6 @@ const generateTokens = (user) => {
 
 const verifyToken = (req, res, next) => {
   let token = req.cookies?.accessToken;
-
   // If no cookie token, try Authorization header
   if (!token) {
     const authHeader = req.headers["authorization"];
@@ -124,10 +129,10 @@ const login = async (req, res) => {
     });
 
   const { accessToken, refreshToken } = generateTokens(user);
-  res.cookie("accessToken", accessToken, { httpOnly: true });
-  res.cookie("refreshToken", refreshToken, { httpOnly: true });
-  res.cookie("user_id", user._id, { httpOnly: true });
-  res.json({ accessToken, refreshToken, userId: user._id });
+  res
+    .cookie("accessToken", accessToken, cookie_config)
+    .cookie("refreshToken", refreshToken, cookie_config)
+    .json({ accessToken, refreshToken, userId: user._id });
 };
 
 const refresh = (req, res) => {
@@ -138,8 +143,8 @@ const refresh = (req, res) => {
     if (err) return res.status(403).json("Invalid refresh token");
     const user = await User.findById(decoded.id);
     const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
-    res.cookie("accessToken", accessToken, { httpOnly: true });
-    res.cookie("refreshToken", newRefreshToken, { httpOnly: true });
+    res.cookie("accessToken", accessToken, cookie_config);
+    res.cookie("refreshToken", newRefreshToken, cookie_config);
     res.json({ accessToken, refreshToken: newRefreshToken });
   });
 };
