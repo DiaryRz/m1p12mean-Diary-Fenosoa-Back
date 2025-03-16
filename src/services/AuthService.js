@@ -3,13 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
 const userService = require("../services/UserService");
 const { generateAccessToken, decodeToken } = require("../utils/jwt.js");
-const cookie_config = {
-  path: "/", // This is crucial - makes cookie available to entire domain
-  httpOnly: false, // If you want the cookie to be inaccessible to JavaScript
-  secure: process.env.NODE_ENV !== "development", // Use secure in production
-  sameSite: "None",
-  partitioned: true,
-};
+import cookie_config from "./cookies.config";
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
@@ -151,9 +145,9 @@ const refresh = (req, res) => {
 };
 
 const logout = (req, res) => {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  res.clearCookie("userId");
+  res.clearCookie("accessToken", cookie_config);
+  res.clearCookie("refreshToken", cookie_config);
+  res.clearCookie("userId", cookie_config);
   res.json("Logged out");
 };
 
