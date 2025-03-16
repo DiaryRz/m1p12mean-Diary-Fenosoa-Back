@@ -15,7 +15,7 @@ class UserService {
 
       const hashedPassword = await bcrypt.hash(
         userData.password,
-        parseInt(process.env.hash_salt),
+        parseInt(process.env.HASH_SALT),
       );
       const user = new User({
         ...userData,
@@ -59,7 +59,7 @@ class UserService {
       if (userData.password) {
         userData.password = await bcrypt.hash(
           userData.password,
-          parseInt(process.env.hash_salt),
+          parseInt(process.env.HASH_SALT),
         );
       }
       return await User.findByIdAndUpdate(id, userData, { new: true });

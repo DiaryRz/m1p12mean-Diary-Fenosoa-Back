@@ -2,13 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
 const userService = require("../services/UserService");
-const { generateAccessToken, decodeToken } = require("../utils/jwt.js");
-const cookie_config = {
-  path: "/", // This is crucial - makes cookie available to entire domain
-  httpOnly: false, // If you want the cookie to be inaccessible to JavaScript
-  secure: process.env.NODE_ENV !== "development", // Use secure in production
-  sameSite: "None",
-};
+const { cookie_config, get_xcookie, set_xcookie } = require("./cookie.utils");
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
@@ -27,6 +21,10 @@ const generateTokens = (user) => {
 const verifyToken = (req, res, next) => {
   let token = req.cookies?.accessToken;
   // If no cookie token, try Authorization header
+
+  if (!token) {
+    token = get_xcookie(req, "accessToken");
+  }
   if (!token) {
     const authHeader = req.headers["authorization"];
     if (authHeader) {
@@ -100,11 +98,7 @@ const register = async (req, res) => {
       role_id,
     });
 
-    const token = generateAccessToken({
-      id: user._id,
-      role: user.role,
-    });
-    res.status(201).cookie("accessToken", token).json({ accessToken: token });
+    res.status(201).json({ ok: true });
   } catch (error) {
     res
       .status(500)
