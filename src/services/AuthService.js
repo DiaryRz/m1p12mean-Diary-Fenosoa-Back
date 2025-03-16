@@ -20,15 +20,15 @@ const generateTokens = (user) => {
 };
 
 const verifyToken = (req, res, next) => {
-  let token = req.cookies?.accessToken;
+  // let token = req.cookies?.accessToken;
   // If no cookie token, try Authorization header
-  if (!token) {
-    const authHeader = req.headers["authorization"];
-    if (authHeader) {
-      token = authHeader.split(" ")[1];
-    }
-  }
+  // if (!token) {
+  const authHeader = req.headers["authorization"];
+  // if (authHeader) {
+  let token = authHeader.split(" ")[1];
 
+  // }
+  // }
   // No token found in either place
   if (!token) {
     console.log("No token provided");
