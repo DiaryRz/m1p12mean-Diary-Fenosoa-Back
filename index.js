@@ -15,6 +15,7 @@ app.use(express.json());
 var corsOptions = {
   origin: process.env.CORS_ORIGIN,
   credentials: true,
+  exposedHeaders: ['Authorization']
 };
 app.use(cors(corsOptions));
 app.use(cookieParser());
