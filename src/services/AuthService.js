@@ -2,12 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
 const userService = require("../services/UserService");
-<<<<<<< HEAD
-const { generateAccessToken, decodeToken } = require("../utils/jwt.js");
-const { cookie_config } = require("./cookies.config");
-=======
 const { cookie_config, get_xcookie, set_xcookie } = require("./cookie.utils");
->>>>>>> dev
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
@@ -24,15 +19,8 @@ const generateTokens = (user) => {
 };
 
 const verifyToken = (req, res, next) => {
-  // let token = req.cookies?.accessToken;
+  let token = req.cookies?.accessToken;
   // If no cookie token, try Authorization header
-<<<<<<< HEAD
-  // if (!token) {
-  const authHeader = req.headers["authorization"];
-  // if (authHeader) {
-  let token = authHeader.split(" ")[1];
-=======
-
   if (!token) {
     token = get_xcookie(req, "accessToken");
   }
@@ -42,10 +30,6 @@ const verifyToken = (req, res, next) => {
       token = authHeader.split(" ")[1];
     }
   }
->>>>>>> dev
-
-  // }
-  // }
   // No token found in either place
   if (!token) {
     console.log("No token provided");
@@ -140,7 +124,7 @@ const login = async (req, res) => {
   res
     .cookie("accessToken", accessToken, cookie_config)
     .cookie("refreshToken", refreshToken, cookie_config)
-    .json({ accessToken, refreshToken});
+    .json({ accessToken, refreshToken });
 };
 
 const refresh = (req, res) => {

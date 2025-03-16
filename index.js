@@ -14,18 +14,14 @@ console.log(process.env.CORS_ACCEPT);
 console.log(process.env.MONGODB_URI);
 
 app.use(express.json());
-<<<<<<< HEAD
 
 var corsOptions = {
   origin: process.env.CORS_ORIGIN,
   credentials: true,
-  exposedHeaders: ['Authorization']
+  exposedHeaders: ["Authorization"],
 };
-app.use(cors(corsOptions));
-=======
 app.use(cors({ origin: process.env.CORS_ACCEPT }));
 
->>>>>>> dev
 app.use(cookieParser());
 
 //initialisation des routes
