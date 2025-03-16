@@ -8,6 +8,7 @@ const cookie_config = {
   httpOnly: false, // If you want the cookie to be inaccessible to JavaScript
   secure: process.env.NODE_ENV !== "development", // Use secure in production
   sameSite: "None",
+  partitioned: true,
 };
 
 const generateTokens = (user) => {
