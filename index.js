@@ -12,8 +12,13 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+const allowedOrigins = [
+  process.env.CORS_ORIGIN,
+  "http://localhost:4200" // Optionnel pour le local
+];
+
 var corsOptions = {
-  origin: process.env.CORS_ORIGIN,
+  origin: allowedOrigins ,
   credentials: true,
   exposedHeaders: ['Authorization']
 };
