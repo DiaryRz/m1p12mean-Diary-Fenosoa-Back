@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
 const userService = require("../services/UserService");
 const { generateAccessToken, decodeToken } = require("../utils/jwt.js");
-import cookie_config from "./cookies.config.js";
+const { cookie_config } = require("./cookies.config");
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
