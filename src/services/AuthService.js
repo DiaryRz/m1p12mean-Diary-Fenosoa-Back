@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
 const userService = require("../services/UserService");
 const { generateAccessToken, decodeToken } = require("../utils/jwt.js");
-import cookie_config from "./cookies.config";
+import cookie_config from "./cookies.config.js";
 
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
@@ -127,7 +127,7 @@ const login = async (req, res) => {
   res
     .cookie("accessToken", accessToken, cookie_config)
     .cookie("refreshToken", refreshToken, cookie_config)
-    .json({ accessToken, refreshToken, userId: user._id });
+    .json({ accessToken, refreshToken});
 };
 
 const refresh = (req, res) => {
@@ -147,7 +147,6 @@ const refresh = (req, res) => {
 const logout = (req, res) => {
   res.clearCookie("accessToken", cookie_config);
   res.clearCookie("refreshToken", cookie_config);
-  res.clearCookie("userId", cookie_config);
   res.json("Logged out");
 };
 
