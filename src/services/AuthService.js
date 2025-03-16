@@ -113,6 +113,7 @@ const login = async (req, res) => {
       error: { mail: true, phone: true, password: false },
     });
 
+  console.log(user);
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword)
     return res.status(400).json({
