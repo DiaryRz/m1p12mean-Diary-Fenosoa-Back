@@ -11,16 +11,28 @@ const path = require("path");
 const app = express();
 const env = process.env.NODE_ENV;
 const PORT = process.env.PORT || 3000;
-
+const allowedOrigins = [
+  process.env.CORS_ORIGIN,
+  "http://localhost:4200", // Add this if you test locally
+];
 console.log(process.env.CORS_ORIGIN);
 console.log(process.env.MONGODB_URI);
 
 app.use(express.json());
 
 var corsOptions = {
-  origin: process.env.CORS_ORIGIN,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if the origin is in the allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
-  exposedHeaders: ["Authorization"],
 };
 app.use(cors(corsOptions));
 
