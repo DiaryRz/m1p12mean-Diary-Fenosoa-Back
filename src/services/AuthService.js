@@ -125,7 +125,7 @@ const login = async (req, res) => {
   res
     .cookie("accessToken", accessToken, cookie_config)
     .cookie("refreshToken", refreshToken, cookie_config)
-    .json({ accessToken, refreshToken, user_id: user._id });
+    .json({ accessToken, refreshToken, userId: user._id });
 };
 
 const refresh = (req, res) => {
