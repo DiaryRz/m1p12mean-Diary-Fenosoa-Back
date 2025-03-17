@@ -18,21 +18,26 @@ const generateTokens = (user) => {
   return { accessToken, refreshToken };
 };
 
-const verifyToken = (req, res, next) => {
-  let token = req.cookies?.accessToken;
-  // If no cookie token, try Authorization header
-
+const get_token = (req, token_name) => {
+  let token = null;
   if (!token) {
-    token = get_xcookie(req, "accessToken");
+    token = get_xcookie(req, token_name);
   }
-  if (!token) {
+  if (!token && token_name !== "accessToken") {
     const authHeader = req.headers["authorization"];
     if (authHeader) {
       token = authHeader.split(" ")[1];
     }
   }
+  if (!token) {
+    token = req.cookies?.[token_name];
+  }
+  return token;
+};
 
-  // No token found in either place
+const verifyToken = (req, res, next) => {
+  let token = get_token(req, "accessToken");
+
   if (!token) {
     console.log("No token provided");
     return res
@@ -45,7 +50,6 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    console.log("Invalid Token");
     return res.status(403).json({ message: "Invalid Token", ok: false });
   }
 };
@@ -129,18 +133,33 @@ const login = async (req, res) => {
     .json({ accessToken, refreshToken, userId: user._id });
 };
 
-const refresh = (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.status(401).json("No refresh token");
+const refresh = async (req, res) => {
+  let refreshToken = get_token(req, "refreshToken");
 
-  jwt.verify(refreshToken, process.env.REFRESH_SECRET, async (err, decoded) => {
-    if (err) return res.status(403).json("Invalid refresh token");
+  if (!refreshToken)
+    return res.status(401).json({ message: "No refresh token", ok: false });
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    if (!decoded) {
+      return res.status(403).json("Invalid refresh token");
+    }
     const user = await User.findById(decoded.id);
+
     const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
     res.cookie("accessToken", accessToken, cookie_config);
     res.cookie("refreshToken", newRefreshToken, cookie_config);
-    res.json({ accessToken, refreshToken: newRefreshToken });
-  });
+    return res.json({
+      accessToken,
+      refreshToken: newRefreshToken,
+      userId: decoded.id,
+    });
+    return res.status(401).json({
+      msg: "Invalid Token",
+    });
+  } catch (err) {
+    console.log("Invalid Token");
+    return res.status(403).json({ message: "Invalid Token", ok: false });
+  }
 };
 
 const logout = (req, res) => {

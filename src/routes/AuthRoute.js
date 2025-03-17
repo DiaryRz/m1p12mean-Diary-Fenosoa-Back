@@ -6,7 +6,7 @@ router.post("/register", authService.register);
 
 router.post("/login", authService.login);
 
-router.post("/refresh", authService.refresh);
+router.get("/refresh", authService.refresh);
 
 router.get("/logout", authService.verifyToken, authService.logout);
 

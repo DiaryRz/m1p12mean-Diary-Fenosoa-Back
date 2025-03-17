@@ -1,7 +1,7 @@
 const cookie_config = {
   path: "/", // This is crucial - makes cookie available to entire domain
   httpOnly: false, // If you want the cookie to be inaccessible to JavaScript
-  sameSite: "lax",
+  sameSite: "none",
   secure: process.env.NODE_ENV !== "development", // Use secure in production
   partitioned: process.env.NODE_ENV !== "development", // Use secure in production
 };
@@ -18,9 +18,10 @@ function get_xcookie(req, cookie_name) {
     const c = authHeader.split(";");
     c.map((item) => {
       const cookie = item.split("=");
-      cookie[0].trim();
+      cookie[0] = cookie[0].trim();
+      cookie[1] = cookie[1].trim();
       if (cookie[0] == cookie_name) {
-        res = cookie[1].trim();
+        res = cookie[1];
       }
     });
   }
