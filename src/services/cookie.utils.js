@@ -2,11 +2,11 @@ const cookie_config = {
   path: "/", // This is crucial - makes cookie available to entire domain
   httpOnly: false, // If you want the cookie to be inaccessible to JavaScript
   sameSite: "none",
-  secure: process.env.NODE_ENV !== "development", // Use secure in production
-  partitioned: process.env.NODE_ENV !== "development", // Use secure in production
+  secure: true, // Use secure in production
+  partitioned: true,
 };
 
-function set_xcookie(res, cookie_name, value) {
+function set_xcookie(res, cookie_name, value, cookie_config) {
   res.append("x-cookie", `${cookie_name}=${value}`);
   return res;
 }
