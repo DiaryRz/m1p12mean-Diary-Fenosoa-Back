@@ -119,6 +119,7 @@ const login = async (req, res) => {
       error: { mail: true, phone: true, password: false },
     });
 
+  console.log(user);
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword)
     return res.status(400).json({
@@ -163,9 +164,8 @@ const refresh = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  res.clearCookie("userId");
+  res.clearCookie("accessToken", cookie_config);
+  res.clearCookie("refreshToken", cookie_config);
   res.json("Logged out");
 };
 
