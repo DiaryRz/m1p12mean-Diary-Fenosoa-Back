@@ -18,9 +18,10 @@ function get_xcookie(req, cookie_name) {
     const c = authHeader.split(";");
     c.map((item) => {
       const cookie = item.split("=");
-      cookie[0].trim();
+      cookie[0] = cookie[0].trim();
+      cookie[1] = cookie[1].trim();
       if (cookie[0] == cookie_name) {
-        res = cookie[1].trim();
+        res = cookie[1];
       }
     });
   }
