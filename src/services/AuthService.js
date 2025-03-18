@@ -111,15 +111,16 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { mail, password, role } = req.body;
-  const user = await User.findOne({ mail, role_id: role });
+  const { mail, password, roles } = req.body;
+  // console.log(roles);
+  const user = await User.findOne({ mail: mail, role_id: { $in: roles } });
   if (!user)
     return res.status(400).json({
       message: "User not found",
       error: { mail: true, phone: true, password: false },
     });
 
-  console.log(user);
+  // console.log(user);
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword)
     return res.status(400).json({
