@@ -47,7 +47,10 @@ class UserService {
 
   async getUsersByRole(roleId) {
     try {
-      const users = await User.find({ role_id: { $in: roleId }, status: 0 });
+      const users = await User.find({
+        role_id: { $in: roleId },
+        status: 0,
+      }).populate({ path: "role_id" });
       return users;
     } catch (error) {
       throw error;
