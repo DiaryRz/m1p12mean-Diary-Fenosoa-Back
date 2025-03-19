@@ -6,6 +6,7 @@ const router = express.Router();
 const userController = new UserController();
 
 router.get("/employee", verifyToken, userController.getAllEmployee);
+router.post("/employee", verifyToken, userController.addEmployee);
 router.get("/manager", verifyToken, userController.getAllManager);
 router.get("/client", verifyToken, userController.getAllUsers);
 router.get("/mecanicien", verifyToken, userController.getAllMecanic);

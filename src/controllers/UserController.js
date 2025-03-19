@@ -12,6 +12,35 @@ class UserController {
     }
   }
 
+  async addEmployee(req, res) {
+    try {
+      // console.log(req.body);
+      const user_exist = await userService.userExist([
+        { mail: req.body.mail },
+        { CIN: req.body.CIN },
+        { phone: req.body.phone },
+      ]);
+      // console.log(user_exist);
+      if (user_exist.exist) {
+        const field_taken = {
+          mail: user_exist.user.mail == req.body.mail,
+          CIN: user_exist.user.CIN == req.body.CIN,
+          phone: user_exist.user.phone == req.body.phone,
+        };
+        return res
+          .status(409)
+          .json({ message: "This user alredy exist", field: field_taken });
+      }
+      const user = await userService.createUser(req.body);
+      res.status(201).json({ message: "New employee added", ok: true });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching users by role",
+        error: error.message,
+      });
+    }
+  }
+
   async getAllUsers(req, res) {
     try {
       const users = await userService.getAllUsers();

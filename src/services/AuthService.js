@@ -72,11 +72,11 @@ const register = async (req, res) => {
       { CIN: CIN },
       { phone: phone },
     ]);
-    if (user_exist) {
+    if (user_exist.exist) {
       const field_taken = {
-        mail: user_exist.mail == mail,
-        CIN: user_exist.CIN == CIN,
-        phone: user_exist.phone == phone,
+        mail: user_exist.user.mail == mail,
+        CIN: user_exist.user.CIN == CIN,
+        phone: user_exist.user.phone == phone,
       };
       return res.status(409).json({
         message: "This user alredy exist",

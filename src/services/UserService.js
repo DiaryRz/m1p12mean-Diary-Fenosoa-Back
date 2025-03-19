@@ -83,8 +83,7 @@ class UserService {
     try {
       const query = { $or: conditions };
       const existingUser = await User.findOne(query);
-
-      return !!existingUser;
+      return { user: existingUser, exist: !!existingUser };
     } catch (error) {
       console.error("UserService: Error checking user existence:", error);
       throw error;
