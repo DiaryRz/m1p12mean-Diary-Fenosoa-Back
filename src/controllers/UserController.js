@@ -1,4 +1,5 @@
 const userService = require("../services/UserService");
+const bcrypt = require("bcryptjs");
 
 class UserController {
   async createUser(req, res) {
@@ -144,6 +145,17 @@ class UserController {
   }
 
   async fireUser(req, res) {
+    const user_exist = await userService.getUserById(req.body.manager_id);
+    const validpassword = await bcrypt.compare(
+      req.body.manager_password,
+      user_exist.password,
+    );
+    if (!validpassword)
+      return res.status(400).json({
+        message: "invalid password",
+        error: { password: true },
+      });
+
     try {
       const { id } = req.params;
 

@@ -49,7 +49,6 @@ class UserService {
     try {
       const users = await User.find({
         role_id: { $in: roleId },
-        status: 0,
       }).populate({ path: "role_id" });
       return users;
     } catch (error) {
