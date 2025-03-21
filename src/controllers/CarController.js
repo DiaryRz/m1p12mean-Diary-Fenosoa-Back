@@ -1,55 +1,58 @@
-const carService = require("../services/CarService.");
+const CarService = require("../services/CarService");
 
-class CarCategoryController {
-  async createCar(req, res) {
-    try {
-      const carCategory = await carService.create(req.body);
-      res.status(201).json(carCategory);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error creating car", error: error.message });
+class CarController {
+    constructor() {
+        this.carService = new CarService();
     }
-  }
 
-  async getAllCar(req, res) {
-    try {
-      const carCategories = await carService.getAll();
-      res.json(carCategories);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error fetching car", error: error.message });
+    async createCar(req, res) {
+        try {
+            const car = await this.carService.createCar(req.body);
+            res.status(201).json(car);
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
     }
-  }
 
-  async getCarByUserId(req, res) {
-    try {
-      const car = await carService.getByUserId(req.body.id);
-      if (!car) {
-        return res.status(204).json({ message: "Car not found" });
-      }
-      res.json(car);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error car category", error: error.message });
+    async getAllCars(req, res) {
+        try {
+            const cars = await this.carService.getAllCars();
+            res.status(200).json(cars);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     }
-  }
-  async getCarById(req, res) {
-    try {
-      const car = await carService.getById(req.params.id);
-      if (!car) {
-        return res.status(204).json({ message: "Car not found" });
-      }
-      res.json(car);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error car category", error: error.message });
+
+    async getCarById(req, res) {
+        try {
+            const car = await this.carService.getCarById(req.params.id);
+            if (!car) return res.status(404).json({ message: 'Voiture non trouvée' });
+            res.status(200).json(car);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     }
-  }
+
+    async updateCar(req, res) {
+        try {
+            const car = await this.carService.updateCar(req.params.id, req.body);
+            if (!car) return res.status(404).json({ message: 'Voiture non trouvée' });
+            res.status(200).json(car);
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async deleteCar(req, res) {
+        try {
+            const car = await this.carService.deleteCar(req.params.id);
+            if (!car) return res.status(404).json({ message: 'Voiture non trouvée' });
+            res.status(200).json({ message: 'Voiture supprimée avec succès' });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
 }
 
-module.exports = CarCategoryController;
+module.exports = CarController;
 

@@ -1,13 +1,13 @@
 const express = require('express');
-const CarCategoryController = require('../controllers/CarCategoryController');
+const CarController = require('../controllers/CarController');
 const { verifyToken } = require('../services/AuthService');
 
 const router = express.Router();
+const carController = new CarController();
 
-const carCategoryController = new CarCategoryController();
-
-router.post('/', verifyToken, carCategoryController.createCarCategory);
-router.get('/', verifyToken, carCategoryController.getAllCarCategory);
-router.get('/:id', verifyToken, carCategoryController.getCarCategoryById);
+// Routes CRUD
+router.post('', verifyToken, carController.createCar.bind(carController));
+router.get('', verifyToken, carController.getAllCars.bind(carController));
+router.get('/:id', verifyToken, carController.getCarById.bind(carController));
 
 module.exports = router;

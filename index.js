@@ -5,8 +5,8 @@ const UserRoutes = require("./src/routes/UserRoute");
 const authRoutes = require("./src/routes/AuthRoute");
 const carCategoryRoutes = require("./src/routes/CarCategoryRoutes");
 const cookieParser = require("cookie-parser");
-const dotenv = require("dotenv");
-const path = require("path");
+const carRoutes = require("./src/routes/carRoutes");
+const serviceRoutes = require('./src/routes/ServiceRoutes');
 
 const app = express();
 const env = process.env.NODE_ENV;
@@ -43,7 +43,8 @@ app.use("/role", RoleRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", UserRoutes);
 app.use("/car_category", carCategoryRoutes);
-
+app.use("/car", carRoutes);
+app.use("/service", serviceRoutes);
 //initialisation de la racine /
 app.get("/", (req, res) => {
   res.send("hello world");
