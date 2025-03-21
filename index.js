@@ -7,6 +7,7 @@ const carCategoryRoutes = require("./src/routes/CarCategoryRoutes");
 const cookieParser = require("cookie-parser");
 const carRoutes = require("./src/routes/carRoutes");
 const serviceRoutes = require('./src/routes/ServiceRoutes');
+const appointmentRoutes = require('./src/routes/appointmentRoutes');
 
 const app = express();
 const env = process.env.NODE_ENV;
@@ -45,6 +46,8 @@ app.use("/users", UserRoutes);
 app.use("/car_category", carCategoryRoutes);
 app.use("/car", carRoutes);
 app.use("/service", serviceRoutes);
+app.use("/appointment", appointmentRoutes);
+
 //initialisation de la racine /
 app.get("/", (req, res) => {
   res.send("hello world");
