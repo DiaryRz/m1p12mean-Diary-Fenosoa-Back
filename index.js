@@ -1,12 +1,14 @@
 const express = require("express");
 const cors = require("cors");
-const RoleRoutes = require("./src/routes/RoleRoutes");
-const UserRoutes = require("./src/routes/UserRoute");
-const authRoutes = require("./src/routes/AuthRoute");
-const carCategoryRoutes = require("./src/routes/CarCategoryRoutes");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const path = require("path");
+
+const RoleRoutes = require("./src/routes/RoleRoutes");
+const UserRoutes = require("./src/routes/UserRoute");
+const ServicesRoutes = require("./src/routes/ServicesRoutes");
+const authRoutes = require("./src/routes/AuthRoute");
+const carCategoryRoutes = require("./src/routes/CarCategoryRoutes");
 
 const app = express();
 const env = process.env.NODE_ENV;
@@ -42,6 +44,7 @@ app.use(cookieParser());
 app.use("/role", RoleRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", UserRoutes);
+app.use("/services", ServicesRoutes);
 app.use("/car_category", carCategoryRoutes);
 
 //initialisation de la racine /
