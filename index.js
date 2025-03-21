@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const dotenv = require("dotenv");
-const path = require("path");
+const carRoutes = require("./src/routes/CarRoutes");
+const serviceRoutes = require("./src/routes/ServiceRoutes");
+const appointmentRoutes = require("./src/routes/appointmentRoutes");
 
 const RoleRoutes = require("./src/routes/RoleRoutes");
 const UserRoutes = require("./src/routes/UserRoute");
@@ -46,6 +47,9 @@ app.use("/auth", authRoutes);
 app.use("/users", UserRoutes);
 app.use("/services", ServicesRoutes);
 app.use("/car_category", carCategoryRoutes);
+app.use("/car", carRoutes);
+app.use("/service", serviceRoutes);
+app.use("/appointment", appointmentRoutes);
 
 //initialisation de la racine /
 app.get("/", (req, res) => {
