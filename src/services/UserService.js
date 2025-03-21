@@ -29,7 +29,8 @@ class UserService {
 
   async getAllUsers() {
     try {
-      return await User.find().populate("role_id");
+      const list = await User.find();
+      return await User.populate(list, { path: "role_id" });
     } catch (error) {
       throw error;
     }
@@ -38,8 +39,7 @@ class UserService {
   async getUserById(id) {
     try {
       const u = await User.findById(id);
-      const user = await User.populate(u, { path: "role_id" });
-      return user;
+      return await User.populate(u, { path: "role_id" });
     } catch (error) {
       throw error;
     }
@@ -47,7 +47,9 @@ class UserService {
 
   async getUsersByRole(roleId) {
     try {
-      const users = await User.find({ role_id: roleId, status: 0 });
+      const users = await User.find({
+        role_id: { $in: roleId },
+      }).populate({ path: "role_id" });
       return users;
     } catch (error) {
       throw error;
@@ -68,12 +70,19 @@ class UserService {
     }
   }
 
+  /* async deleteUser(id) {
+    try {
+      return await User.findByIdAndDelete(id);
+    } catch (error) {
+      throw error;
+    }
+  } */
+
   async userExist(conditions) {
     try {
       const query = { $or: conditions };
       const existingUser = await User.findOne(query);
-
-      return !!existingUser;
+      return { user: existingUser, exist: !!existingUser };
     } catch (error) {
       console.error("UserService: Error checking user existence:", error);
       throw error;

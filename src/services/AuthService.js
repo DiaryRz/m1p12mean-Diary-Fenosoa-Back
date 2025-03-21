@@ -34,6 +34,7 @@ const get_token = (req, token_name) => {
   if (!token) {
     token = req.cookies?.[token_name];
   }
+  // console.log(token_name + ": " + token);
   return token;
 };
 
@@ -75,11 +76,11 @@ const register = async (req, res) => {
       { CIN: CIN },
       { phone: phone },
     ]);
-    if (user_exist) {
+    if (user_exist.exist) {
       const field_taken = {
-        mail: user_exist.mail == mail,
-        CIN: user_exist.CIN == CIN,
-        phone: user_exist.phone == phone,
+        mail: user_exist.user.mail == mail,
+        CIN: user_exist.user.CIN == CIN,
+        phone: user_exist.user.phone == phone,
       };
       return res.status(409).json({
         message: "This user alredy exist",
@@ -114,26 +115,31 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { mail, password, role } = req.body;
-  const user = await User.findOne({ mail, role_id: role });
+  const { mail, password, roles } = req.body;
+  // console.log(roles);
+  const user = await User.findOne({
+    mail: mail,
+    role_id: { $in: roles },
+    status: 0,
+  });
   if (!user)
     return res.status(400).json({
       message: "User not found",
       error: { mail: true, phone: true, password: false },
     });
 
-  console.log(user);
-  const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword)
+  // console.log(user);
+  const validpassword = await bcrypt.compare(password, user.password);
+  if (!validpassword)
     return res.status(400).json({
-      message: "Invalid password",
+      message: "invalid password",
       error: { mail: false, phone: false, password: true },
     });
 
   const { accessToken, refreshToken } = generateTokens(user);
   res
-    .cookie("accessToken", accessToken, cookie_config)
-    .cookie("refreshToken", refreshToken, cookie_config)
+    /* .cookie("accessToken", accessToken, cookie_config)
+    .cookie("refreshToken", refreshToken, cookie_config) */
     .json({ accessToken, refreshToken, userId: user._id });
 };
 
@@ -150,8 +156,8 @@ const refresh = async (req, res) => {
     const user = await User.findById(decoded.id);
 
     const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
-    res.cookie("accessToken", accessToken, cookie_config);
-    res.cookie("refreshToken", newRefreshToken, cookie_config);
+    /* res.cookie("accessToken", accessToken, cookie_config);
+    res.cookie("refreshToken", newRefreshToken, cookie_config); */
     return res.json({
       accessToken,
       refreshToken: newRefreshToken,
