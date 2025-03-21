@@ -5,6 +5,7 @@ const userService = require("../services/UserService");
 const { cookie_config, get_xcookie, set_xcookie } = require("./cookie.utils");
 
 const generateTokens = (user) => {
+  console.log("generateTokens");
   const accessToken = jwt.sign(
     { id: user._id, role: user.role },
     process.env.ACCESS_SECRET,
@@ -19,6 +20,7 @@ const generateTokens = (user) => {
 };
 
 const get_token = (req, token_name) => {
+  console.log("get_token");
   let token = null;
   if (!token) {
     token = get_xcookie(req, token_name);
@@ -37,6 +39,7 @@ const get_token = (req, token_name) => {
 };
 
 const verifyToken = (req, res, next) => {
+  console.log("verifyToken");
   let token = get_token(req, "accessToken");
 
   if (!token) {
@@ -170,6 +173,7 @@ const refresh = async (req, res) => {
 };
 
 const logout = (req, res) => {
+  console.log("logout");
   res.clearCookie("accessToken", cookie_config);
   res.clearCookie("refreshToken", cookie_config);
   res.json("Logged out");

@@ -23,4 +23,3 @@ ServiceSchema.pre("save", async function (next) {
 
 const Service = mongoose.model("Service", ServiceSchema);
 module.exports = Service;
-
