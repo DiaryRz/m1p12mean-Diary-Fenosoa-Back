@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const carRoutes = require("./src/routes/carRoutes");
-const serviceRoutes = require('./src/routes/ServiceRoutes');
-const appointmentRoutes = require('./src/routes/appointmentRoutes');
+const carRoutes = require("./src/routes/CarRoutes");
+const serviceRoutes = require("./src/routes/ServiceRoutes");
+const appointmentRoutes = require("./src/routes/appointmentRoutes");
 
 const RoleRoutes = require("./src/routes/RoleRoutes");
 const UserRoutes = require("./src/routes/UserRoute");
