@@ -2,17 +2,17 @@ const Appointment = require("../models/Appointments");
 const HistoryAppointment = require("../models/HistoryAppointments");
 const mongoose = require("mongoose");
 
-class AppointmentService {
-  static async create(appointmentData) {
+const AppointmentService = {
+  async create(appointmentData) {
     try {
       const appointment = new Appointment(appointmentData);
       return await appointment.save();
     } catch (error) {
       throw error;
     }
-  }
+  },
 
-  static async getAll() {
+  async getAll() {
     try {
       return await Appointment.find()
         .populate("id_user")
@@ -21,9 +21,9 @@ class AppointmentService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
-  static async getById(id) {
+  async getById(id) {
     try {
       return await Appointment.findById(id)
         .populate("id_user")
@@ -32,9 +32,9 @@ class AppointmentService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
-  static async createHistoryRecord(appointment, modificationType) {
+  async createHistoryRecord(appointment, modificationType) {
     const historyData = {
       date_appointement: appointment.date_appointement,
       id_client: appointment.id_user,
@@ -49,9 +49,9 @@ class AppointmentService {
 
     const history = new HistoryAppointment(historyData);
     await history.save();
-  }
+  },
 
-  static async update(id, appointmentData) {
+  async update(id, appointmentData) {
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
@@ -80,9 +80,9 @@ class AppointmentService {
     } finally {
       session.endSession();
     }
-  }
+  },
 
-  static async delete(id) {
+  async delete(id) {
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
@@ -109,12 +109,11 @@ class AppointmentService {
     } finally {
       session.endSession();
     }
-  }
+  },
 
-  static async updateStatus(id, status) {
+  async updateStatus(id, status) {
     return await this.update(id, { status: status });
-  }
-}
+  },
+};
 
 module.exports = AppointmentService;
-
