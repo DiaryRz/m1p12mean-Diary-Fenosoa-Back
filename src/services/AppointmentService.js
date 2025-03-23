@@ -1,16 +1,81 @@
 const Appointment = require("../models/Appointments");
 const HistoryAppointment = require("../models/HistoryAppointments");
 const mongoose = require("mongoose");
+const PriceDetails = require("../models/PriceDetails");
+const CarService = require("../services/CarService");
+const UserService = require("../services/UserService");
+const ServiceService = require("../services/ServiceService");
 
 class AppointmentService {
   static async create(appointmentData) {
     try {
+      const userExists = await UserService.getUserById(appointmentData.id_user);
+      const carService = new CarService();
+      const carExists = await carService.getCarById(appointmentData.id_car);
+
+      if (!userExists) {
+        throw new Error('Utilisateur non trouvé');
+      }
+      if (!carExists) {
+        throw new Error('Voiture non trouvée');
+      }
+
+      const appointmentService = new AppointmentService();
+      const detailsPrice = await appointmentService.price_appointement(
+        appointmentData.id_car, 
+        appointmentData.services  // Doit être un tableau d'IDs de services
+      );
+
+      const price_total = detailsPrice.reduce((total, detail) => total + detail.final_price, 0);
+      appointmentData.total_price = price_total;
+
       const appointment = new Appointment(appointmentData);
-      return await appointment.save();
+
+      const savedAppointement = await appointment.save();
+
+      const detailsWithAppointmentId = detailsPrice.map(detail => ({
+        ...detail,
+        id_appointement: savedAppointement._id
+      }));
+
+      await PriceDetails.insertMany(detailsWithAppointmentId);
+
+      return savedAppointement;
+      
     } catch (error) {
       throw error;
     }
   }
+
+  async price_appointement(id_car, services) {
+    if (!Array.isArray(services)) {
+      throw new Error('services doit être un tableau');
+    }
+
+    const carService = new CarService();
+    const car = await carService.getCarById(id_car);
+
+    // Récupérer tous les services en utilisant Promise.all et ServiceService
+    const servicesPromises = services.map(id => ServiceService.getServiceById(id));
+    const servicesData = await Promise.all(servicesPromises);
+
+    if (servicesData.some(service => !service)) {
+      throw new Error('Certains services n\'existent pas');
+    }
+
+    //tableau détaillé des prix
+    const priceDetails = servicesData.map(service => ({
+      id_appointement: null,
+      service_id: service._id,
+      service_name: service.service_name,
+      base_price: service.unit_price,
+      multiplier: car.category_id.mult_price,
+      final_price: service.unit_price * car.category_id.mult_price
+    }));
+
+    return priceDetails;
+  }
+  
 
   static async getAll() {
     try {
