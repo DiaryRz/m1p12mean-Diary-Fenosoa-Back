@@ -23,7 +23,7 @@ class AppointmentService {
       const appointmentService = new AppointmentService();
       const detailsPrice = await appointmentService.price_appointement(
         appointmentData.id_car, 
-        appointmentData.services  // Doit être un tableau d'IDs de services
+        appointmentData.services 
       );
 
       const price_total = detailsPrice.reduce((total, detail) => total + detail.final_price, 0);
