@@ -27,7 +27,9 @@ class AppointmentService {
       );
 
       const price_total = detailsPrice.reduce((total, detail) => total + detail.final_price, 0);
+      const total_duration = detailsPrice.reduce((total, detail) => total + detail.total_duration, 0);
       appointmentData.total_price = price_total;
+      appointmentData.total_duration = total_duration;
 
       const appointment = new Appointment(appointmentData);
 
@@ -70,7 +72,8 @@ class AppointmentService {
       service_name: service.service_name,
       base_price: service.unit_price,
       multiplier: car.category_id.mult_price,
-      final_price: service.unit_price * car.category_id.mult_price
+      final_price: service.unit_price * car.category_id.mult_price,
+      total_duration: service.time_needed * car.category_id.mult_time
     }));
 
     return priceDetails;
@@ -178,6 +181,119 @@ class AppointmentService {
 
   static async updateStatus(id, status) {
     return await this.update(id, { status: status });
+  }
+
+  async getAvailableSlots(startDate, endDate) {
+    // Constantes pour les heures d'ouverture et pauses
+    const BUSINESS_HOURS = {
+      OPENING: 9 + 3,     // 9h UTC+3
+      CLOSING: 17 + 3,    // 17h UTC+3
+      LUNCH_START: 12 + 3, // 12h UTC+3
+      LUNCH_END: 13.5 + 3, // 13h30 UTC+3
+    };
+
+    try {
+      const appointments = await Appointment.find({
+        date_appointment: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
+        }
+      }).sort({ date_appointment: 1 });
+
+      const busySlots = appointments.map(appointment => {
+        const start = new Date(appointment.date_appointment);
+        const end = new Date(start.getTime() + appointment.total_duration * 60000);
+        return { start, end };
+      });
+
+      const availableSlots = [];
+      let currentDate = new Date(startDate);
+      
+      while (currentDate <= new Date(endDate)) {
+        // Vérifier si c'est un weekend (0 = dimanche, 6 = samedi)
+        const dayOfWeek = currentDate.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+          // Créer les créneaux du matin et de l'après-midi
+          const morningStart = new Date(currentDate);
+          morningStart.setHours(BUSINESS_HOURS.OPENING, 0, 0, 0);
+          
+          const morningEnd = new Date(currentDate);
+          morningEnd.setHours(BUSINESS_HOURS.LUNCH_START, 0, 0, 0);
+          
+          const afternoonStart = new Date(currentDate);
+          afternoonStart.setHours(BUSINESS_HOURS.LUNCH_END, 30, 0, 0);
+          
+          const afternoonEnd = new Date(currentDate);
+          afternoonEnd.setHours(BUSINESS_HOURS.CLOSING, 0, 0, 0);
+
+          // Vérifier les conflits pour le matin
+          const morningConflicts = busySlots.filter(slot => 
+            (slot.start <= morningEnd && slot.end >= morningStart)
+          );
+
+          // Vérifier les conflits pour l'après-midi
+          const afternoonConflicts = busySlots.filter(slot => 
+            (slot.start <= afternoonEnd && slot.end >= afternoonStart)
+          );
+
+          // Traiter les créneaux du matin
+          if (morningConflicts.length === 0) {
+            availableSlots.push({
+              start: new Date(morningStart),
+              end: new Date(morningEnd)
+            });
+          } else {
+            let lastEnd = morningStart;
+            for (const appointment of morningConflicts) {
+              if (appointment.start > lastEnd) {
+                availableSlots.push({
+                  start: new Date(lastEnd),
+                  end: new Date(appointment.start)
+                });
+              }
+              lastEnd = appointment.end;
+            }
+            if (lastEnd < morningEnd) {
+              availableSlots.push({
+                start: new Date(lastEnd),
+                end: new Date(morningEnd)
+              });
+            }
+          }
+
+          // Traiter les créneaux de l'après-midi
+          if (afternoonConflicts.length === 0) {
+            availableSlots.push({
+              start: new Date(afternoonStart),
+              end: new Date(afternoonEnd)
+            });
+          } else {
+            let lastEnd = afternoonStart;
+            for (const appointment of afternoonConflicts) {
+              if (appointment.start > lastEnd) {
+                availableSlots.push({
+                  start: new Date(lastEnd),
+                  end: new Date(appointment.start)
+                });
+              }
+              lastEnd = appointment.end;
+            }
+            if (lastEnd < afternoonEnd) {
+              availableSlots.push({
+                start: new Date(lastEnd),
+                end: new Date(afternoonEnd)
+              });
+            }
+          }
+        }
+
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return availableSlots;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
