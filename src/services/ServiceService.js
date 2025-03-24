@@ -28,14 +28,6 @@ const serviceService = {
     }
   },
 
-  async getService(cond) {
-    try {
-      return await Service.findOne(cond).populate();
-    } catch (error) {
-      throw error;
-    }
-  },
-
   async updateService(id, serviceData) {
     try {
       return await Service.findByIdAndUpdate(id, serviceData, { new: true });

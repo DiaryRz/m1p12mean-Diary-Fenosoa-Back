@@ -6,7 +6,6 @@ const ServiceSchema = new mongoose.Schema({
   date_creation: { type: Date, default: Date.now },
   service_name: { type: String, required: true },
   unit_price: { type: Number, required: true },
-  ressources: { type: Number, required: true },
   time_needed: { type: Number, required: true }, // in minutes
 });
 
