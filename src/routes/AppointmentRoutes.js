@@ -1,13 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const AppointmentController = require('../controllers/AppointmentController');
+const AppointmentController = require("../controllers/AppointmentController");
+const authService = require("../services/AuthService");
 
 // Routes CRUD pour les rendez-vous
-router.post('/', AppointmentController.create);
-router.get('/', AppointmentController.getAll);
-router.get('/:id', AppointmentController.getById);
-router.put('/:id', AppointmentController.update);
-router.patch('/:id/status', AppointmentController.updateStatus);
-router.delete('/:id', AppointmentController.delete);
+router.post("/", authService.verifyToken, AppointmentController.create);
+router.get("/", authService.verifyToken, AppointmentController.getAll);
+// router.get('/client/:id', authService.verifyToken, AppointmentController.getClientAppoitments);
+router.get("/:id", authService.verifyToken, AppointmentController.getById);
+router.put("/:id", authService.verifyToken, AppointmentController.update);
+router.patch(
+  "/:id/status",
+  authService.verifyToken,
+  AppointmentController.updateStatus,
+);
+router.delete("/:id", authService.verifyToken, AppointmentController.delete);
 
-module.exports = router; 
+module.exports = router;
+

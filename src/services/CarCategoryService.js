@@ -1,6 +1,14 @@
 const CarCategory = require("../models/CarCategory");
 
 const CarCategoryService = {
+  async createMany(carCategoryData) {
+    try {
+      return await CarCategory.insertMany(carCategoryData);
+    } catch (error) {
+      throw error;
+    }
+  },
+
   async create(carCategoryData) {
     try {
       const carCategory = new CarCategory(carCategoryData);
@@ -12,7 +20,7 @@ const CarCategoryService = {
 
   async getAll() {
     try {
-      return await CarCategory.find().populate("car_category");
+      return await CarCategory.find();
     } catch (error) {
       throw error;
     }
@@ -28,4 +36,3 @@ const CarCategoryService = {
 };
 
 module.exports = CarCategoryService;
-
