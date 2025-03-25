@@ -7,9 +7,13 @@ const carController = new CarController();
 
 // Routes CRUD
 router.post("", verifyToken, carController.createCar.bind(carController));
+router.post("/plate", verifyToken, carController.getCar.bind(carController));
 router.get("", verifyToken, carController.getAllCars.bind(carController));
 router.get("/:id", verifyToken, carController.getCarById.bind(carController));
-// router.get('/client/:id', verifyToken, carController.getClientCaUSERrs.bind(carController));
+router.get(
+  "/client/:id",
+  verifyToken,
+  carController.getClientCars.bind(carController),
+);
 
 module.exports = router;
-

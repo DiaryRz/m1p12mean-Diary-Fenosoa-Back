@@ -18,6 +18,26 @@ const CarService = {
     }
   },
 
+  async getCar(data) {
+    try {
+      return await Car.findOne(data)
+        .populate("category_id")
+        .populate("user_id");
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async getClientCars(client_id) {
+    try {
+      return await Car.find({ user_id: client_id })
+        .populate("category_id")
+        .populate("user_id");
+    } catch (error) {
+      throw error;
+    }
+  },
+
   async getCarById(id) {
     try {
       return await Car.findById(id).populate("category_id").populate("user_id");

@@ -11,7 +11,7 @@ class ServiceController {
         return res.status(409).json({ exist: true, service: service });
       }
       service = await serviceService.createService(req.body);
-      return res.status(201).json({ ok: true, service: service });
+      return res.status(201).json({ success: true, service: service });
     } catch (error) {
       res.status(400).json({
         message: "Erreur lors de la création du service",
@@ -83,4 +83,3 @@ class ServiceController {
 }
 
 module.exports = ServiceController;
-

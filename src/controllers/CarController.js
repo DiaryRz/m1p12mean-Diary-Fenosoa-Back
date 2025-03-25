@@ -19,6 +19,15 @@ class CarController {
     }
   }
 
+  async getClientCars(req, res) {
+    try {
+      const cars = await CarService.getClientCars(req.body.client_id);
+      res.status(200).json(cars);
+    } catch (error) {
+      res.status(500).json({ message: error.message, success: false });
+    }
+  }
+
   async getCarById(req, res) {
     try {
       const car = await CarService.getCarById(req.params.id);
@@ -26,6 +35,19 @@ class CarController {
       res.status(200).json(car);
     } catch (error) {
       res.status(500).json({ message: error.message });
+    }
+  }
+
+  async getCar(req, res) {
+    try {
+      const car = await CarService.getCar(req.body);
+      if (!car)
+        return res
+          .status(404)
+          .json({ message: "Voiture non trouvée", success: false });
+      res.status(200).json(car);
+    } catch (error) {
+      res.status(500).json({ message: error.message, success: false });
     }
   }
 

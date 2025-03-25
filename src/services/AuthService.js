@@ -20,7 +20,6 @@ const generateTokens = (user) => {
 };
 
 const get_token = (req, token_name) => {
-  console.log("get_token");
   let token = null;
   if (!token) {
     token = get_xcookie(req, token_name);
@@ -39,14 +38,13 @@ const get_token = (req, token_name) => {
 };
 
 const verifyToken = (req, res, next) => {
-  console.log("verifyToken");
   let token = get_token(req, "accessToken");
 
   if (!token) {
     console.log("No token provided");
     return res
       .status(401)
-      .json({ message: "Access Denied - No token provided", ok: false });
+      .json({ message: "Access Denied - No token provided", success: false });
   }
 
   try {
@@ -54,7 +52,7 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ message: "Invalid Token", ok: false });
+    return res.status(403).json({ message: "Invalid Token", success: false });
   }
 };
 
@@ -106,7 +104,7 @@ const register = async (req, res) => {
       role_id,
     });
 
-    res.status(201).json({ ok: true });
+    res.status(201).json({ success: true });
   } catch (error) {
     res
       .status(500)
@@ -147,7 +145,9 @@ const refresh = async (req, res) => {
   let refreshToken = get_token(req, "refreshToken");
 
   if (!refreshToken)
-    return res.status(401).json({ message: "No refresh token", ok: false });
+    return res
+      .status(401)
+      .json({ message: "No refresh token", success: false });
   try {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
     if (!decoded) {
@@ -168,7 +168,7 @@ const refresh = async (req, res) => {
     });
   } catch (err) {
     console.log("Invalid Token");
-    return res.status(403).json({ message: "Invalid Token", ok: false });
+    return res.status(403).json({ message: "Invalid Token", success: false });
   }
 };
 
