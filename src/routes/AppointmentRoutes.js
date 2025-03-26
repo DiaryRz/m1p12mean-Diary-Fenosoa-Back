@@ -17,7 +17,7 @@ router.get("/dates/occupees", verifyToken, AppointmentController.getDateComplete
 
 router.get("/:appointmentId/payments", PaymentController.getPaymentsByAppointment);
 
-router.get("/user/:userId", AppointmentController.getAppointmentsByUser);
+router.get("/user/:userId", verifyToken, AppointmentController.getAppointmentsByUser);
 
 // Routes CRUD pour les rendez-vous
 router.post("/", verifyToken, AppointmentController.create);
