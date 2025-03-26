@@ -3,10 +3,9 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const carRoutes = require("./src/routes/CarRoutes");
 const serviceRoutes = require("./src/routes/ServiceRoutes");
-const appointmentRoutes = require("./src/routes/appointmentRoutes");
+const AppointmentRoutes = require("./src/routes/appointmentRoutes");
 
 const ServiceRoutes = require("./src/routes/ServiceRoutes");
-const AppointmentRoutes = require("./src/routes/AppointmentRoutes");
 const RoleRoutes = require("./src/routes/RoleRoutes");
 const UserRoutes = require("./src/routes/UserRoute");
 const AuthRoutes = require("./src/routes/AuthRoute");

@@ -4,8 +4,15 @@ const AppointmentController = require("../controllers/AppointmentController");
 const authService = require("../services/AuthService");
 const verifyToken = authService.verifyToken;
 
-router.get('/available-slots', verifyToken, AppointmentController.getAvailableSlots);
-router.post('/adddate', verifyToken, AppointmentController.addDateAppointment);
+router.get(
+  "/available-slots",
+  verifyToken,
+  AppointmentController.getAvailableSlots,
+);
+router.post(
+  "/adddate" /* , verifyToken */,
+  AppointmentController.addDateAppointment,
+);
 
 // Routes CRUD pour les rendez-vous
 router.post("/", authService.verifyToken, AppointmentController.create);
@@ -21,4 +28,3 @@ router.patch(
 router.delete("/:id", authService.verifyToken, AppointmentController.delete);
 
 module.exports = router;
-
