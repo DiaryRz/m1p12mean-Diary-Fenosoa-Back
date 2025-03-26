@@ -81,7 +81,7 @@ const AppointmentService = {
       console.error('Erreur dans addDate_appointment:', error);
       throw error;
     }
-  }
+  },
 
   async price_appointement(id_car, services) {
     if (!Array.isArray(services)) {
