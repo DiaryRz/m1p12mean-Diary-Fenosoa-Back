@@ -6,7 +6,7 @@ const UserHistoryService = require("./UserHistoryService");
 const UserService = {
   async createUser(userData) {
     try {
-      console.log("UserService: Creating user with data:" + userData);
+      //console.log("UserService: Creating user with data:" + userData);
       // Verify if role exists first
       const roleExists = await Role.findById(userData.role_id);
       if (!roleExists) {
@@ -48,7 +48,8 @@ const UserService = {
   async getUsersByRole(roleId) {
     try {
       const users = await User.find({
-        role_id: { $in: roleId }, "status" : 0
+        role_id: { $in: roleId },
+        status: 0,
       }).populate({ path: "role_id" });
       return users;
     } catch (error) {
@@ -91,9 +92,9 @@ const UserService = {
 
   async FireUser(id) {
     try {
-      console.log("UserService: Firing user with id:" + id);
+      //console.log("UserService: Firing user with id:" + id);
       const user = await User.findById(id);
-      console.log("UserService: Firing user with id:" + id);
+      //console.log("UserService: Firing user with id:" + id);
       if (user) {
         UserHistoryService.createUserHistory(user);
         user.status = 1;
