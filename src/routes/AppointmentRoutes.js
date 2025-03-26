@@ -4,9 +4,13 @@ const AppointmentController = require("../controllers/AppointmentController");
 const authService = require("../services/AuthService");
 const verifyToken = authService.verifyToken;
 
-router.get('/available-slots', verifyToken, AppointmentController.getAvailableSlots);
-router.post('/adddate', verifyToken, AppointmentController.addDateAppointment);
-router.get("/pending-with-date", verifyToken, AppointmentController.getPendingWithDate);
+router.get(
+  "/available-slots",
+  verifyToken,
+  AppointmentController.getAvailableSlots,
+);
+router.post("/adddate", verifyToken, AppointmentController.addDateAppointment);
+// router.get("/pending-with-date", verifyToken, AppointmentController.getPendingWithDate);
 
 // Routes CRUD pour les rendez-vous
 router.post("/", authService.verifyToken, AppointmentController.create);
