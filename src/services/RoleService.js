@@ -1,7 +1,7 @@
 const Role = require("../models/Roles");
 const mongoose = require("../connexion/db");
 
-class RoleService {
+const RoleService = {
   async addRole(role_name) {
     try {
       const role = new Role({ role_name });
@@ -11,7 +11,7 @@ class RoleService {
       console.error("Error during role addition:", error);
       throw error;
     }
-  }
+  },
 
   async editRole(id, role_data) {
     try {
@@ -20,7 +20,7 @@ class RoleService {
       console.error("Error during role addition:", error);
       throw error;
     }
-  }
+  },
   async getAllRoles() {
     try {
       const roles = await Role.find();
@@ -28,7 +28,7 @@ class RoleService {
     } catch (error) {
       throw new Error(`Failed to fetch roles: ${error.message}`);
     }
-  }
-}
+  },
+};
 
-module.exports = new RoleService();
+module.exports = RoleService;

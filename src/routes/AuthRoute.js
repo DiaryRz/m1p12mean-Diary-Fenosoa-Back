@@ -11,7 +11,7 @@ router.get("/refresh", authService.refresh);
 router.get("/logout", authService.verifyToken, authService.logout);
 
 router.get("/protected", authService.verifyToken, (req, res) => {
-  res.json({ ok: true });
+  res.json({ success: true });
 });
 
 module.exports = router;

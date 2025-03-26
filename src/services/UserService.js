@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const Role = require("../models/Roles");
 const UserHistoryService = require("./UserHistoryService");
 
-class UserService {
+const UserService = {
   async createUser(userData) {
     try {
       console.log("UserService: Creating user with data:" + userData);
@@ -25,7 +25,7 @@ class UserService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
   async getAllUsers() {
     try {
@@ -34,7 +34,7 @@ class UserService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
   async getUserById(id) {
     try {
@@ -43,7 +43,7 @@ class UserService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
   async getUsersByRole(roleId) {
     try {
@@ -54,7 +54,7 @@ class UserService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
   async updateUser(id, userData) {
     try {
@@ -68,7 +68,7 @@ class UserService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
   /* async deleteUser(id) {
     try {
@@ -87,7 +87,7 @@ class UserService {
       console.error("UserService: Error checking user existence:", error);
       throw error;
     }
-  }
+  },
 
   async FireUser(id) {
     try {
@@ -102,7 +102,7 @@ class UserService {
     } catch (error) {
       throw error;
     }
-  }
-}
+  },
+};
 
-module.exports = new UserService();
+module.exports = UserService;

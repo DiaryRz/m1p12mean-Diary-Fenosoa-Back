@@ -5,11 +5,13 @@ const carRoutes = require("./src/routes/CarRoutes");
 const serviceRoutes = require("./src/routes/ServiceRoutes");
 const appointmentRoutes = require("./src/routes/appointmentRoutes");
 
+const ServiceRoutes = require("./src/routes/ServiceRoutes");
+const AppointmentRoutes = require("./src/routes/AppointmentRoutes");
 const RoleRoutes = require("./src/routes/RoleRoutes");
 const UserRoutes = require("./src/routes/UserRoute");
-const ServicesRoutes = require("./src/routes/ServicesRoutes");
-const authRoutes = require("./src/routes/AuthRoute");
-const carCategoryRoutes = require("./src/routes/CarCategoryRoutes");
+const AuthRoutes = require("./src/routes/AuthRoute");
+const CarCategoryRoutes = require("./src/routes/CarCategoryRoutes");
+const CarRoutes = require("./src/routes/CarRoutes");
 
 const app = express();
 const env = process.env.NODE_ENV;
@@ -43,13 +45,13 @@ app.use(cookieParser());
 
 //initialisation des routes
 app.use("/role", RoleRoutes);
-app.use("/auth", authRoutes);
+app.use("/auth", AuthRoutes);
 app.use("/users", UserRoutes);
-app.use("/services", ServicesRoutes);
-app.use("/car_category", carCategoryRoutes);
-app.use("/car", carRoutes);
-app.use("/service", serviceRoutes);
-app.use("/appointment", appointmentRoutes);
+app.use("/services", ServiceRoutes);
+app.use("/car_category", CarCategoryRoutes);
+app.use("/car", CarRoutes);
+app.use("/service", ServiceRoutes);
+app.use("/appointment", AppointmentRoutes);
 
 //initialisation de la racine /
 app.get("/", (req, res) => {
