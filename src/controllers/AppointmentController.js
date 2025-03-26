@@ -40,13 +40,25 @@ class AppointmentController {
   // Récupérer un rendez-vous par son ID
   async getById(req, res) {
     try {
-      const appointment = await AppointmentService.getById(req.params.id);
+      const id = req.query.id;
+      
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: "L'ID du rendez-vous est requis"
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointment = await appointmentService.getById(id);
+      
       if (!appointment) {
         return res.status(404).json({
           success: false,
           message: "Rendez-vous non trouvé",
         });
       }
+      
       res.status(200).json({
         success: true,
         data: appointment,
