@@ -5,7 +5,7 @@ const userService = require("../services/UserService");
 const { cookie_config, get_xcookie, set_xcookie } = require("./cookie.utils");
 
 const generateTokens = (user) => {
-  console.log("generateTokens");
+  //console.log("generateTokens");
   const accessToken = jwt.sign(
     { id: user._id, role: user.role },
     process.env.ACCESS_SECRET,
@@ -41,7 +41,7 @@ const verifyToken = (req, res, next) => {
   let token = get_token(req, "accessToken");
 
   if (!token) {
-    console.log("No token provided");
+    //console.log("No token provided");
     return res
       .status(401)
       .json({ message: "Access Denied - No token provided", success: false });
@@ -167,13 +167,13 @@ const refresh = async (req, res) => {
       msg: "Invalid Token",
     });
   } catch (err) {
-    console.log("Invalid Token");
+    //console.log("Invalid Token");
     return res.status(403).json({ message: "Invalid Token", success: false });
   }
 };
 
 const logout = (req, res) => {
-  console.log("logout");
+  //console.log("logout");
   res.clearCookie("accessToken", cookie_config);
   res.clearCookie("refreshToken", cookie_config);
   res.json("Logged out");

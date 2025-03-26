@@ -11,8 +11,7 @@ class AppointmentService {
   static async create(appointmentData) {
     try {
       const userExists = await UserService.getUserById(appointmentData.id_user);
-      const carService = new CarService();
-      const carExists = await carService.getCarById(appointmentData.id_car);
+      const carExists = await CarService.getCarById(appointmentData.id_car);
 
       if (!userExists) {
         throw new Error("Utilisateur non trouvé");
@@ -62,15 +61,15 @@ class AppointmentService {
         .populate('id_car')
         .populate('services');
 
-      console.log(appointment);
+      //console.log(appointment);
       if (!appointment) {
-        throw new Error('Rendez-vous non trouvé');
+        throw new Error("Rendez-vous non trouvé");
       }
 
       // Créer l'historique avant la modification
       await HistoryAppointmentService.createHistoryFromAppointment(
         appointment.toObject(),
-        'update'
+        "update",
       );
 
       // Mettre à jour le rendez-vous
@@ -79,7 +78,7 @@ class AppointmentService {
 
       return updatedAppointment;
     } catch (error) {
-      console.error('Erreur dans addDate_appointment:', error);
+      console.error("Erreur dans addDate_appointment:", error);
       throw error;
     }
   }
@@ -89,8 +88,7 @@ class AppointmentService {
       throw new Error("services doit être un tableau");
     }
 
-    const carService = new CarService();
-    const car = await carService.getCarById(id_car);
+    const car = await CarService.getCarById(id_car);
 
     // Récupérer tous les services en utilisant Promise.all et ServiceService
     const servicesPromises = services.map((id) =>
