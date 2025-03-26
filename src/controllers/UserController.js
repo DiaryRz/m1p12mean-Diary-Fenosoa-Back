@@ -30,10 +30,14 @@ class UserController {
         };
         return res
           .status(409)
-          .json({ message: "This user alredy exist", field: field_taken });
+          .json({
+            message: "This user alredy exist",
+            error: true,
+            field: field_taken,
+          });
       }
       const user = await userService.createUser(req.body);
-      res.status(201).json({ message: "New employee added", ok: true });
+      res.status(201).json({ message: "New employee added", success: true });
     } catch (error) {
       res.status(500).json({
         message: "Error fetching users by role",

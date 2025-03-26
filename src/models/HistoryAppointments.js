@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const generateCustomId = require('../utils/idGenerator');
+const mongoose = require("mongoose");
+const generateCustomId = require("../utils/idGenerator");
 
 const HistoryAppointmentSchema = new mongoose.Schema({
     _id: { type: String },
@@ -30,5 +30,9 @@ HistoryAppointmentSchema.pre('save', async function(next) {
     }
 });
 
-const HistoryAppointment = mongoose.model('HistoryAppointment', HistoryAppointmentSchema);
+const HistoryAppointment = mongoose.model(
+  "HistoryAppointment",
+  HistoryAppointmentSchema,
+);
 module.exports = HistoryAppointment;
+

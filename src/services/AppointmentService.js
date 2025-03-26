@@ -7,28 +7,34 @@ const UserService = require("../services/UserService");
 const ServiceService = require("../services/ServiceService");
 const HistoryAppointmentService = require("./HistoryAppointmentService");
 
-class AppointmentService {
-  static async create(appointmentData) {
+const AppointmentService = {
+  async create(appointmentData) {
     try {
       const userExists = await UserService.getUserById(appointmentData.id_user);
       const carService = new CarService();
       const carExists = await carService.getCarById(appointmentData.id_car);
 
       if (!userExists) {
-        throw new Error('Utilisateur non trouvé');
+        throw new Error("Utilisateur non trouvé");
       }
       if (!carExists) {
-        throw new Error('Voiture non trouvée');
+        throw new Error("Voiture non trouvée");
       }
 
       const appointmentService = new AppointmentService();
       const detailsPrice = await appointmentService.price_appointement(
-        appointmentData.id_car, 
-        appointmentData.services 
+        appointmentData.id_car,
+        appointmentData.services,
       );
 
-      const price_total = detailsPrice.reduce((total, detail) => total + detail.final_price, 0);
-      const total_duration = detailsPrice.reduce((total, detail) => total + detail.total_duration, 0);
+      const price_total = detailsPrice.reduce(
+        (total, detail) => total + detail.final_price,
+        0,
+      );
+      const total_duration = detailsPrice.reduce(
+        (total, detail) => total + detail.total_duration,
+        0,
+      );
       appointmentData.total_price = price_total;
       appointmentData.total_duration = total_duration;
 
@@ -36,19 +42,18 @@ class AppointmentService {
 
       const savedAppointement = await appointment.save();
 
-      const detailsWithAppointmentId = detailsPrice.map(detail => ({
+      const detailsWithAppointmentId = detailsPrice.map((detail) => ({
         ...detail,
-        id_appointement: savedAppointement._id
+        id_appointement: savedAppointement._id,
       }));
 
       await PriceDetails.insertMany(detailsWithAppointmentId);
 
       return savedAppointement;
-      
     } catch (error) {
       throw error;
     }
-  }
+  },
 
   async addDate_appointment(date_appointment, id_appointement) {
     try {
@@ -80,36 +85,37 @@ class AppointmentService {
 
   async price_appointement(id_car, services) {
     if (!Array.isArray(services)) {
-      throw new Error('services doit être un tableau');
+      throw new Error("services doit être un tableau");
     }
 
     const carService = new CarService();
     const car = await carService.getCarById(id_car);
 
     // Récupérer tous les services en utilisant Promise.all et ServiceService
-    const servicesPromises = services.map(id => ServiceService.getServiceById(id));
+    const servicesPromises = services.map((id) =>
+      ServiceService.getServiceById(id),
+    );
     const servicesData = await Promise.all(servicesPromises);
 
-    if (servicesData.some(service => !service)) {
-      throw new Error('Certains services n\'existent pas');
+    if (servicesData.some((service) => !service)) {
+      throw new Error("Certains services n'existent pas");
     }
 
     //tableau détaillé des prix
-    const priceDetails = servicesData.map(service => ({
+    const priceDetails = servicesData.map((service) => ({
       id_appointement: null,
       service_id: service._id,
       service_name: service.service_name,
       base_price: service.unit_price,
       multiplier: car.category_id.mult_price,
       final_price: service.unit_price * car.category_id.mult_price,
-      total_duration: service.time_needed * car.category_id.mult_time
+      total_duration: service.time_needed * car.category_id.mult_time,
     }));
 
     return priceDetails;
-  }
-  
+  },
 
-  static async getAll() {
+  async getAll() {
     try {
       return await Appointment.find()
         .populate("id_user")
@@ -118,9 +124,9 @@ class AppointmentService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
-  static async getById(id) {
+  async getById(id) {
     try {
       return await Appointment.findById(id)
         .populate("id_user")
@@ -129,9 +135,9 @@ class AppointmentService {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
-  static async createHistoryRecord(appointment, modificationType) {
+  async createHistoryRecord(appointment, modificationType) {
     const historyData = {
       date_appointement: appointment.date_appointement,
       id_client: appointment.id_user,
@@ -146,9 +152,9 @@ class AppointmentService {
 
     const history = new HistoryAppointment(historyData);
     await history.save();
-  }
+  },
 
-  static async update(id, appointmentData) {
+  async update(id, appointmentData) {
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
@@ -177,9 +183,9 @@ class AppointmentService {
     } finally {
       session.endSession();
     }
-  }
+  },
 
-  static async delete(id) {
+  async delete(id) {
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
@@ -206,17 +212,17 @@ class AppointmentService {
     } finally {
       session.endSession();
     }
-  }
+  },
 
-  static async updateStatus(id, status) {
+  async updateStatus(id, status) {
     return await this.update(id, { status: status });
-  }
+  },
 
   async getAvailableSlots(startDate, endDate) {
     // Constantes pour les heures d'ouverture et pauses
     const BUSINESS_HOURS = {
-      OPENING: 9 + 3,     // 9h UTC+3
-      CLOSING: 17 + 3,    // 17h UTC+3
+      OPENING: 9 + 3, // 9h UTC+3
+      CLOSING: 17 + 3, // 17h UTC+3
       LUNCH_START: 12 + 3, // 12h UTC+3
       LUNCH_END: 13.5 + 3, // 13h30 UTC+3
     };
@@ -225,19 +231,21 @@ class AppointmentService {
       const appointments = await Appointment.find({
         date_appointment: {
           $gte: new Date(startDate),
-          $lte: new Date(endDate)
-        }
+          $lte: new Date(endDate),
+        },
       }).sort({ date_appointment: 1 });
 
-      const busySlots = appointments.map(appointment => {
+      const busySlots = appointments.map((appointment) => {
         const start = new Date(appointment.date_appointment);
-        const end = new Date(start.getTime() + appointment.total_duration * 60000);
+        const end = new Date(
+          start.getTime() + appointment.total_duration * 60000,
+        );
         return { start, end };
       });
 
       const availableSlots = [];
       let currentDate = new Date(startDate);
-      
+
       while (currentDate <= new Date(endDate)) {
         // Vérifier si c'est un weekend (0 = dimanche, 6 = samedi)
         const dayOfWeek = currentDate.getDay();
@@ -245,31 +253,31 @@ class AppointmentService {
           // Créer les créneaux du matin et de l'après-midi
           const morningStart = new Date(currentDate);
           morningStart.setHours(BUSINESS_HOURS.OPENING, 0, 0, 0);
-          
+
           const morningEnd = new Date(currentDate);
           morningEnd.setHours(BUSINESS_HOURS.LUNCH_START, 0, 0, 0);
-          
+
           const afternoonStart = new Date(currentDate);
           afternoonStart.setHours(BUSINESS_HOURS.LUNCH_END, 30, 0, 0);
-          
+
           const afternoonEnd = new Date(currentDate);
           afternoonEnd.setHours(BUSINESS_HOURS.CLOSING, 0, 0, 0);
 
           // Vérifier les conflits pour le matin
-          const morningConflicts = busySlots.filter(slot => 
-            (slot.start <= morningEnd && slot.end >= morningStart)
+          const morningConflicts = busySlots.filter(
+            (slot) => slot.start <= morningEnd && slot.end >= morningStart,
           );
 
           // Vérifier les conflits pour l'après-midi
-          const afternoonConflicts = busySlots.filter(slot => 
-            (slot.start <= afternoonEnd && slot.end >= afternoonStart)
+          const afternoonConflicts = busySlots.filter(
+            (slot) => slot.start <= afternoonEnd && slot.end >= afternoonStart,
           );
 
           // Traiter les créneaux du matin
           if (morningConflicts.length === 0) {
             availableSlots.push({
               start: new Date(morningStart),
-              end: new Date(morningEnd)
+              end: new Date(morningEnd),
             });
           } else {
             let lastEnd = morningStart;
@@ -277,7 +285,7 @@ class AppointmentService {
               if (appointment.start > lastEnd) {
                 availableSlots.push({
                   start: new Date(lastEnd),
-                  end: new Date(appointment.start)
+                  end: new Date(appointment.start),
                 });
               }
               lastEnd = appointment.end;
@@ -285,7 +293,7 @@ class AppointmentService {
             if (lastEnd < morningEnd) {
               availableSlots.push({
                 start: new Date(lastEnd),
-                end: new Date(morningEnd)
+                end: new Date(morningEnd),
               });
             }
           }
@@ -294,7 +302,7 @@ class AppointmentService {
           if (afternoonConflicts.length === 0) {
             availableSlots.push({
               start: new Date(afternoonStart),
-              end: new Date(afternoonEnd)
+              end: new Date(afternoonEnd),
             });
           } else {
             let lastEnd = afternoonStart;
@@ -302,7 +310,7 @@ class AppointmentService {
               if (appointment.start > lastEnd) {
                 availableSlots.push({
                   start: new Date(lastEnd),
-                  end: new Date(appointment.start)
+                  end: new Date(appointment.start),
                 });
               }
               lastEnd = appointment.end;
@@ -310,7 +318,7 @@ class AppointmentService {
             if (lastEnd < afternoonEnd) {
               availableSlots.push({
                 start: new Date(lastEnd),
-                end: new Date(afternoonEnd)
+                end: new Date(afternoonEnd),
               });
             }
           }
@@ -323,8 +331,7 @@ class AppointmentService {
     } catch (error) {
       throw error;
     }
-  }
-}
+  },
+};
 
 module.exports = AppointmentService;
-
