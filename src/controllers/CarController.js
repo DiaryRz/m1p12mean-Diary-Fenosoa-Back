@@ -21,7 +21,7 @@ class CarController {
 
   async getClientCars(req, res) {
     try {
-      const cars = await CarService.getClientCars(req.body.client_id);
+      const cars = await CarService.getClientCars(req.params.id);
       res.status(200).json(cars);
     } catch (error) {
       res.status(500).json({ message: error.message, success: false });
