@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 const generateCustomId = require("../utils/idGenerator");
-const mongoose = require("mongoose");
-const generateCustomId = require("../utils/idGenerator");
 
 const HistoryAppointmentSchema = new mongoose.Schema({
     _id: { type: String },
