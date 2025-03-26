@@ -173,6 +173,25 @@ class AppointmentController {
         }
     }
 
+    async confirmAppointment(req, res) {
+        try {
+            const { id_appointment } = req.body;
+
+            const appointmentService = new AppointmentService();
+            await appointmentService.confirmAppointment(id_appointment);
+
+            res.status(200).json({
+                success: true,
+                message: 'Rendez-vous confirmé avec succès'
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
     async getPendingWithDate(req, res) {
         try {
             const appointmentService = new AppointmentService();
@@ -182,6 +201,37 @@ class AppointmentController {
                 success: true,
                 data: appointments,
                 message: 'Rendez-vous en attente récupérés avec succès'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    async getAppointmentsBeforeHour(req, res) {
+        try {
+            const { hour, startDate, endDate } = req.query;
+            
+            if (!hour || !startDate || !endDate) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'L\'heure et les dates sont requises'
+                });
+            }
+
+            const appointmentService = new AppointmentService();
+            const appointments = await appointmentService.getAppointmentsCountBeforeHourBetweenDates(
+                parseInt(hour),
+                startDate,
+                endDate
+            );
+            
+            res.status(200).json({
+                success: true,
+                data: appointments,
+                message: 'Statistiques des rendez-vous récupérées avec succès'
             });
         } catch (error) {
             res.status(500).json({

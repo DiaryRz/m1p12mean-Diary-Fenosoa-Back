@@ -7,6 +7,8 @@ const verifyToken = authService.verifyToken;
 router.get('/available-slots', verifyToken, AppointmentController.getAvailableSlots);
 router.post('/adddate', verifyToken, AppointmentController.addDateAppointment);
 router.get("/pending-with-date", verifyToken, AppointmentController.getPendingWithDate);
+router.post("/confirm", verifyToken ,  AppointmentController.confirmAppointment);
+router.get("/stats/before-hour", verifyToken ,AppointmentController.getAppointmentsBeforeHour);
 
 // Routes CRUD pour les rendez-vous
 router.post("/", authService.verifyToken, AppointmentController.create);
@@ -20,5 +22,6 @@ router.patch(
   AppointmentController.updateStatus,
 );
 router.delete("/:id", authService.verifyToken, AppointmentController.delete);
+
 
 module.exports = router;

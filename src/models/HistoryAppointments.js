@@ -12,7 +12,7 @@ const HistoryAppointmentSchema = new mongoose.Schema({
     status: { type: String, required: true},
     modification_status: {
         type: String,
-        enum: ['update', 'delete'],
+        enum: ['update', 'delete' , 'confirm'],
         required: true
     },
     date_appointment: { type: Date },

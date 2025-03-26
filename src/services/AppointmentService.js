@@ -57,8 +57,7 @@ class AppointmentService {
 
   async addDate_appointment(date_appointment, id_appointement) {
     try {
-      console.log(id_appointement);
-      const appointment = await Appointment.findById("apt_001")
+      const appointment = await Appointment.findById(id_appointement)
         .populate('id_user')
         .populate('id_car')
         .populate('services');
@@ -348,6 +347,103 @@ class AppointmentService {
       throw error;
     }
   }
+
+  //confirmer le rendez-vous
+  async confirmAppointment(id_appointement) {
+    try {
+      const appointment = await Appointment.findById(id_appointement)
+        .populate('id_user')
+        .populate('id_car')
+        .populate('services');
+
+      console.log(appointment);
+      if (!appointment) {
+        throw new Error('Rendez-vous non trouvé');
+      }
+
+      // Créer l'historique avant la modification
+      await HistoryAppointmentService.createHistoryFromAppointment(
+        appointment.toObject(),
+        'confirm'
+      );
+
+      // Mettre à jour le rendez-vous
+      appointment.status = "confirmé";
+      const updatedAppointment = await appointment.save();
+
+      return updatedAppointment;
+    } catch (error) {
+      console.error('Erreur dans addDate_appointment:', error);
+      throw error;
+    }
+  }
+
+
+  async getAppointmentsCountBeforeHourBetweenDates(hour, startDate, endDate) {
+    try {
+      const appointments = await Appointment.aggregate([
+        {
+          $match: {
+            date_appointment: { 
+              $ne: null,
+              $gte: new Date(startDate),
+              $lte: new Date(endDate)
+            },
+            status: "confirmé"
+          }
+        },
+        {
+          $addFields: {
+            hour: { $hour: "$date_appointment" }
+          }
+        },
+        {
+          $match: {
+            hour: { $lt: hour }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { 
+                format: "%Y-%m-%d", 
+                date: "$date_appointment" 
+              }
+            },
+            count: { $sum: 1 },
+            appointments: { 
+              $push: {
+                _id: "$_id",
+                date_appointment: "$date_appointment",
+                status: "$status",
+                total_price: "$total_price",
+                total_duration: "$total_duration"
+              }
+            }
+          }
+        },
+        {
+          $sort: { _id: 1 }
+        }
+      ]);
+
+      return appointments.map(item => ({
+        date: item._id,
+        nombreRendezVous: item.count,
+        details: item.appointments.map(apt => ({
+          id: apt._id,
+          heure: new Date(apt.date_appointment).toLocaleTimeString(),
+          status: apt.status,
+          prix_total: apt.total_price,
+          duree_totale: apt.total_duration
+        }))
+      }));
+    } catch (error) {
+      console.error('Erreur dans getAppointmentsCountBeforeHourBetweenDates:', error);
+      throw error;
+    }
+  }
+
 }
 
 module.exports = AppointmentService;
