@@ -18,7 +18,7 @@ router.get("/dates/occupees", verifyToken, AppointmentController.getDateComplete
 router.post("/", verifyToken, AppointmentController.create);
 router.get("/", verifyToken, AppointmentController.getAll);
 // router.get('/client/:id', verifyToken, AppointmentController.getClientAppoitments);
-router.get("/:id", verifyToken, AppointmentController.getById);
+router.get("/byid", AppointmentController.getById);
 router.put("/:id", verifyToken, AppointmentController.update);
 router.patch(
   "/:id/status",
