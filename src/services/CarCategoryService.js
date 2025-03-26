@@ -28,7 +28,7 @@ const CarCategoryService = {
 
   async getById(id) {
     try {
-      return await CarCategory.findById(id).populate("car_category");
+      return await CarCategory.findById(id);
     } catch (error) {
       throw error;
     }
