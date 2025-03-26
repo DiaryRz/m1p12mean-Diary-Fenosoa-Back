@@ -467,7 +467,11 @@ class AppointmentService {
   }
 
   async getDateCompletementOccupe(startDate, endDate) {
-    const config = await ConfigService.getLatest();
+    const configString = localStorage.getItem('config');
+    if (!configString) {
+      config = await ConfigService.getLatest();
+    }
+    console.log(configString);
     const max_appointment_per_day = config.max_appointment_per_day;
     const after_hour_appointment = config.after_hour_appointment;
     const All_appointment = await this.getAppointmentsInWhichDay(after_hour_appointment , startDate, endDate);
