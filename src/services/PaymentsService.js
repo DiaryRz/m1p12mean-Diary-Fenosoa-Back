@@ -106,6 +106,28 @@ const PayementService = {
       session.endSession();
     }
   },
+
+  async getPaymentsByAppointmentId(appointmentId) {
+    try {
+      const payments = await Payment.find({ id_appointement: appointmentId })
+        .sort({ createdAt: -1 }); // Du plus récent au plus ancien
+
+      if (!payments || payments.length === 0) {
+        throw new Error("Aucun paiement trouvé pour ce rendez-vous");
+      }
+
+      // Calculer le total payé
+      const totalPayed = payments.reduce((sum, payment) => sum + payment.amount_payed, 0);
+
+      return {
+        payments,
+        totalPayed,
+        count: payments.length
+      };
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 module.exports = PayementService;
