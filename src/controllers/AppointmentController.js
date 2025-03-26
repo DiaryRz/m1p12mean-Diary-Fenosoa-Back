@@ -153,6 +153,25 @@ class AppointmentController {
             });
         }
     }
+
+    async addDateAppointment(req, res) {
+        try {
+            const { date_appointment, id_appointment } = req.body;
+
+            const appointmentService = new AppointmentService();
+            await appointmentService.addDate_appointment(date_appointment, id_appointment);
+
+            res.status(200).json({
+                success: true,
+                message: 'Date du rendez-vous mise à jour avec succès'
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = new AppointmentController(); 

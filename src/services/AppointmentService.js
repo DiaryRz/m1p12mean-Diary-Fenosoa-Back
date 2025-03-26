@@ -5,6 +5,7 @@ const PriceDetails = require("../models/PriceDetails");
 const CarService = require("../services/CarService");
 const UserService = require("../services/UserService");
 const ServiceService = require("../services/ServiceService");
+const HistoryAppointmentService = require("./HistoryAppointmentService");
 
 class AppointmentService {
   static async create(appointmentData) {
@@ -45,6 +46,34 @@ class AppointmentService {
       return savedAppointement;
       
     } catch (error) {
+      throw error;
+    }
+  }
+
+  async addDate_appointment(date_appointment, id_appointement) {
+    try {
+      const appointment = await Appointment.findById(id_appointement)
+        .populate('id_user')
+        .populate('id_car')
+        .populate('services');
+
+      if (!appointment) {
+        throw new Error('Rendez-vous non trouvé');
+      }
+
+      // Créer l'historique avant la modification
+      await HistoryAppointmentService.createHistoryFromAppointment(
+        appointment.toObject(),
+        'update'
+      );
+
+      // Mettre à jour le rendez-vous
+      appointment.date_appointment = date_appointment;
+      const updatedAppointment = await appointment.save();
+
+      return updatedAppointment;
+    } catch (error) {
+      console.error('Erreur dans addDate_appointment:', error);
       throw error;
     }
   }

@@ -4,7 +4,7 @@ const generateCustomId = require('../utils/idGenerator');
 const HistoryAppointmentSchema = new mongoose.Schema({
     _id: { type: String },
     date_reservation_request: { type: Date, required: true },
-    id_client: { type: String, ref: 'User', required: true },
+    id_user: { type: String, ref: 'User', required: true },
     id_car: { type: String, ref: 'Car', required: true },
     services: [{ type: String, ref: 'Service' }],
     total_price: { type: Number, required: true },
@@ -22,7 +22,7 @@ const HistoryAppointmentSchema = new mongoose.Schema({
 HistoryAppointmentSchema.pre('save', async function(next) {
     try {
         if (this.isNew) {
-            this._id = await generateCustomId('HistoryAppointment', 'histo_ap');
+            this._id = await generateCustomId('HistoryAppointment', 'histoapp');
         }
         next();
     } catch (error) {
