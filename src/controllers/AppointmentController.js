@@ -172,6 +172,24 @@ class AppointmentController {
             });
         }
     }
+
+    async getPendingWithDate(req, res) {
+        try {
+            const appointmentService = new AppointmentService();
+            const appointments = await appointmentService.getPendingAppointmentsWithDate();
+            
+            res.status(200).json({
+                success: true,
+                data: appointments,
+                message: 'Rendez-vous en attente récupérés avec succès'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = new AppointmentController(); 

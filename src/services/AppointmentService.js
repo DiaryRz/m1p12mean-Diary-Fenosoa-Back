@@ -334,6 +334,20 @@ class AppointmentService {
       throw error;
     }
   }
+
+  async getPendingAppointmentsWithDate() {
+    try {
+      return await Appointment.find({
+        date_appointment: { $ne: null },
+        status: "en attente"
+      })
+      .populate("id_user")
+      .populate("id_car")
+      .populate("services");
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = AppointmentService;
