@@ -6,7 +6,7 @@ const CarService = require("../services/CarService");
 const UserService = require("../services/UserService");
 const ServiceService = require("../services/ServiceService");
 const HistoryAppointmentService = require("./HistoryAppointmentService");
-const { differenceInDays, addDays, isWeekend, startOfDay, endOfDay, parse } = require('date-fns');
+const ConfigService = require("./ConfigService");
 
 class AppointmentService {
   static async create(appointmentData) {
@@ -464,6 +464,22 @@ class AppointmentService {
     });
     
     return counts;
+  }
+
+  async getDateCompletementOccupe(startDate, endDate) {
+    const config = await ConfigService.getLatest();
+    const max_appointment_per_day = config.max_appointment_per_day;
+    const after_hour_appointment = config.after_hour_appointment;
+    const All_appointment = await this.getAppointmentsInWhichDay(after_hour_appointment , startDate, endDate);
+    console.log(All_appointment);
+    const date_completement_occupe = []
+    
+    for (const date in All_appointment) {
+      if (All_appointment[date] >= max_appointment_per_day) {
+        date_completement_occupe.push(date)
+      }
+    }
+    return date_completement_occupe;
   }
 
 }
