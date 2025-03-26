@@ -22,4 +22,3 @@ router.patch(
 router.delete("/:id", authService.verifyToken, AppointmentController.delete);
 
 module.exports = router;
-
