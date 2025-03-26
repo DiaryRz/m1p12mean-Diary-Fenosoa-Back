@@ -7,8 +7,8 @@ const UserService = require("../services/UserService");
 const ServiceService = require("../services/ServiceService");
 const HistoryAppointmentService = require("./HistoryAppointmentService");
 
-const AppointmentService = {
-  async create(appointmentData) {
+class AppointmentService {
+  static async create(appointmentData) {
     try {
       const userExists = await UserService.getUserById(appointmentData.id_user);
       const carService = new CarService();
@@ -53,15 +53,17 @@ const AppointmentService = {
     } catch (error) {
       throw error;
     }
-  },
+  }
 
   async addDate_appointment(date_appointment, id_appointement) {
     try {
-      const appointment = await Appointment.findById(id_appointement)
+      console.log(id_appointement);
+      const appointment = await Appointment.findById("apt_001")
         .populate('id_user')
         .populate('id_car')
         .populate('services');
 
+      console.log(appointment);
       if (!appointment) {
         throw new Error('Rendez-vous non trouvé');
       }
@@ -81,7 +83,7 @@ const AppointmentService = {
       console.error('Erreur dans addDate_appointment:', error);
       throw error;
     }
-  },
+  }
 
   async price_appointement(id_car, services) {
     if (!Array.isArray(services)) {
@@ -113,7 +115,7 @@ const AppointmentService = {
     }));
 
     return priceDetails;
-  },
+  }
 
   async getAll() {
     try {
@@ -124,7 +126,7 @@ const AppointmentService = {
     } catch (error) {
       throw error;
     }
-  },
+  }
 
   async getById(id) {
     try {
@@ -135,7 +137,7 @@ const AppointmentService = {
     } catch (error) {
       throw error;
     }
-  },
+  }
 
   async createHistoryRecord(appointment, modificationType) {
     const historyData = {
@@ -152,7 +154,7 @@ const AppointmentService = {
 
     const history = new HistoryAppointment(historyData);
     await history.save();
-  },
+  }
 
   async update(id, appointmentData) {
     const session = await mongoose.startSession();
@@ -183,7 +185,7 @@ const AppointmentService = {
     } finally {
       session.endSession();
     }
-  },
+  }
 
   async delete(id) {
     const session = await mongoose.startSession();
@@ -212,11 +214,11 @@ const AppointmentService = {
     } finally {
       session.endSession();
     }
-  },
+  }
 
   async updateStatus(id, status) {
     return await this.update(id, { status: status });
-  },
+  }
 
   async getAvailableSlots(startDate, endDate) {
     // Constantes pour les heures d'ouverture et pauses
@@ -331,7 +333,7 @@ const AppointmentService = {
     } catch (error) {
       throw error;
     }
-  },
-};
+  }
+}
 
 module.exports = AppointmentService;
