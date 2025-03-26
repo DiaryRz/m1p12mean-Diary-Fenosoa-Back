@@ -12,6 +12,7 @@ const AppointmentSchema = new mongoose.Schema({
   total_payed: { type: Number, default: 0 },
   status: { type: String, default: "en attente" },
   date_appointment: { type: Date, default: null },
+  ticket_recup : { type: String, default: null }
 });
 
 AppointmentSchema.pre("save", async function (next) {

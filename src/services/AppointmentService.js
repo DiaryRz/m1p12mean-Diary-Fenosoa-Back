@@ -347,7 +347,7 @@ class AppointmentService {
     }
   }
 
-  //confirmer le rendez-vous
+  //l'admin confirme le rendez-vous
   async confirmAppointment(id_appointement) {
     try {
       const appointment = await Appointment.findById(id_appointement)
@@ -367,7 +367,7 @@ class AppointmentService {
       );
 
       // Mettre à jour le rendez-vous
-      appointment.status = "confirmé";
+      appointment.status = "validé";
       const updatedAppointment = await appointment.save();
 
       return updatedAppointment;
@@ -484,6 +484,28 @@ class AppointmentService {
       }
     }
     return date_completement_occupe;
+  }
+
+  async updatePayment(id, newTotalPayed) {
+    try {
+      const appointment = await Appointment.findById(id);
+      if (!appointment) {
+        throw new Error("Rendez-vous non trouvé");
+      }
+
+      // Mettre à jour le montant total payé
+      appointment.total_payed = newTotalPayed;
+      appointment.status = "confirmé";
+
+      // Si le montant payé est égal au prix total, mettre à jour le statut
+      if (appointment.total_payed >= appointment.total_price) {
+        appointment.status = "payé";
+      }
+
+      return await appointment.save();
+    } catch (error) {
+      throw error;
+    }
   }
 
 }

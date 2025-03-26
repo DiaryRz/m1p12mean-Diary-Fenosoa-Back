@@ -6,7 +6,8 @@ const PaymentSchema = new mongoose.Schema({
     date_pay: { type: Date, default: Date.now },
     id_appointement: { type: String, ref: 'Appointment', required: true },
     amount_payed: { type: Number, required: true },
-    amount_total: { type: Number, required: true }
+    amount_total: { type: Number, required: true },
+    phone_number: { type: String, required: true }
 });
 
 PaymentSchema.pre('save', async function(next) {
