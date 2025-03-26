@@ -6,6 +6,7 @@ const CarService = require("../services/CarService");
 const UserService = require("../services/UserService");
 const ServiceService = require("../services/ServiceService");
 const HistoryAppointmentService = require("./HistoryAppointmentService");
+const { differenceInDays, addDays, isWeekend, startOfDay, endOfDay, parse } = require('date-fns');
 
 class AppointmentService {
   static async create(appointmentData) {
@@ -376,8 +377,7 @@ class AppointmentService {
     }
   }
 
-
-  async getAppointmentsCountBeforeHourBetweenDates(hour, startDate, endDate) {
+  async getAppointmentsCountBeforeHourBetweenDates( startDate, endDate) {
     try {
       const appointments = await Appointment.aggregate([
         {
@@ -388,16 +388,6 @@ class AppointmentService {
               $lte: new Date(endDate)
             },
             status: "confirmé"
-          }
-        },
-        {
-          $addFields: {
-            hour: { $hour: "$date_appointment" }
-          }
-        },
-        {
-          $match: {
-            hour: { $lt: hour }
           }
         },
         {
@@ -430,7 +420,7 @@ class AppointmentService {
         nombreRendezVous: item.count,
         details: item.appointments.map(apt => ({
           id: apt._id,
-          heure: new Date(apt.date_appointment).toLocaleTimeString(),
+          heure: new Date(apt.date_appointment),
           status: apt.status,
           prix_total: apt.total_price,
           duree_totale: apt.total_duration
@@ -440,6 +430,40 @@ class AppointmentService {
       console.error('Erreur dans getAppointmentsCountBeforeHourBetweenDates:', error);
       throw error;
     }
+  }
+  
+  async getAppointmentsInWhichDay(hour , startDate, endDate) {
+    startDate = new Date(startDate);
+    endDate = new Date(endDate);
+    
+    const appointments = await Appointment.find({
+      date_appointment: { $gte: startDate, $lte: endDate },
+      status: "confirmé"
+    });
+  
+    const counts = {};
+    
+    appointments.forEach(app => {
+      let date = new Date(app.date_appointment);
+      let adjustedDate = new Date(date);
+      
+      // Si l'heure dépasse 15h, on le décale au jour suivant
+      if (date.getUTCHours() >= hour) {
+        adjustedDate.setUTCDate(adjustedDate.getUTCDate() + 1);
+      }
+      
+      // Vérifier si la date ajustée tombe un week-end (Samedi ou Dimanche)
+      if (adjustedDate.getUTCDay() === 6) { // Samedi -> Lundi
+        adjustedDate.setUTCDate(adjustedDate.getUTCDate() + 2);
+      } else if (adjustedDate.getUTCDay() === 0) { // Dimanche -> Lundi
+        adjustedDate.setUTCDate(adjustedDate.getUTCDate() + 1);
+      }
+      
+      const dateStr = adjustedDate.toISOString().split('T')[0];
+      counts[dateStr] = (counts[dateStr] || 0) + 1;
+    });
+    
+    return counts;
   }
 
 }

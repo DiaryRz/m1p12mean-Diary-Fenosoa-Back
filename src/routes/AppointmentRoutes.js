@@ -8,20 +8,22 @@ router.get('/available-slots', verifyToken, AppointmentController.getAvailableSl
 router.post('/adddate', verifyToken, AppointmentController.addDateAppointment);
 router.get("/pending-with-date", verifyToken, AppointmentController.getPendingWithDate);
 router.post("/confirm", verifyToken ,  AppointmentController.confirmAppointment);
-router.get("/stats/before-hour", verifyToken ,AppointmentController.getAppointmentsBeforeHour);
+router.get("/date/between" , verifyToken ,AppointmentController.getAppointmentsCountBetweenDates);
+
+router.get("/date/with_appointments", verifyToken , AppointmentController.getAppointmentsInWhichDay);
 
 // Routes CRUD pour les rendez-vous
-router.post("/", authService.verifyToken, AppointmentController.create);
-router.get("/", authService.verifyToken, AppointmentController.getAll);
-// router.get('/client/:id', authService.verifyToken, AppointmentController.getClientAppoitments);
-router.get("/:id", authService.verifyToken, AppointmentController.getById);
-router.put("/:id", authService.verifyToken, AppointmentController.update);
+router.post("/", verifyToken, AppointmentController.create);
+router.get("/", verifyToken, AppointmentController.getAll);
+// router.get('/client/:id', verifyToken, AppointmentController.getClientAppoitments);
+router.get("/:id", verifyToken, AppointmentController.getById);
+router.put("/:id", verifyToken, AppointmentController.update);
 router.patch(
   "/:id/status",
-  authService.verifyToken,
+  verifyToken,
   AppointmentController.updateStatus,
 );
-router.delete("/:id", authService.verifyToken, AppointmentController.delete);
+router.delete("/:id", verifyToken, AppointmentController.delete);
 
 
 module.exports = router;

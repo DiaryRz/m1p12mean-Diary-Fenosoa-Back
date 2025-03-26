@@ -222,7 +222,37 @@ class AppointmentController {
         }
     }
 
-    async getAppointmentsBeforeHour(req, res) {
+    async getAppointmentsCountBetweenDates(req, res) {
+        try {
+            const { startDate, endDate } = req.query;
+            
+            if (!startDate || !endDate) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Les dates sont requises'
+                });
+            }
+
+            const appointmentService = new AppointmentService();
+            const appointments = await appointmentService.getAppointmentsCountBeforeHourBetweenDates(
+                startDate,
+                endDate
+            );
+            
+            res.status(200).json({
+                success: true,
+                data: appointments,
+                message: 'Statistiques des rendez-vous récupérées avec succès'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    async getAppointmentsInWhichDay(req, res) {
         try {
             const { hour, startDate, endDate } = req.query;
             
@@ -234,7 +264,7 @@ class AppointmentController {
             }
 
             const appointmentService = new AppointmentService();
-            const appointments = await appointmentService.getAppointmentsCountBeforeHourBetweenDates(
+            const appointments = await appointmentService.getAppointmentsInWhichDay(
                 parseInt(hour),
                 startDate,
                 endDate
