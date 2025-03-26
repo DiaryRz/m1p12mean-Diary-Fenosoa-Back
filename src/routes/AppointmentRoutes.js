@@ -12,6 +12,8 @@ router.get("/date/between" , verifyToken ,AppointmentController.getAppointmentsC
 
 router.get("/date/with_appointments", verifyToken , AppointmentController.getAppointmentsInWhichDay);
 
+router.get("/dates/occupees", verifyToken, AppointmentController.getDateCompletementOccupe);
+
 // Routes CRUD pour les rendez-vous
 router.post("/", verifyToken, AppointmentController.create);
 router.get("/", verifyToken, AppointmentController.getAll);
@@ -24,6 +26,4 @@ router.patch(
   AppointmentController.updateStatus,
 );
 router.delete("/:id", verifyToken, AppointmentController.delete);
-
-
 module.exports = router;

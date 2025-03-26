@@ -282,6 +282,36 @@ class AppointmentController {
             });
         }
     }
+
+    async getDateCompletementOccupe(req, res) {
+        try {
+            const { startDate, endDate } = req.query;
+            
+            if (!startDate || !endDate) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Les dates de début et de fin sont requises'
+                });
+            }
+
+            const appointmentService = new AppointmentService();
+            const datesOccupees = await appointmentService.getDateCompletementOccupe(
+                startDate,
+                endDate
+            );
+            
+            res.status(200).json({
+                success: true,
+                data: datesOccupees,
+                message: 'Dates complètement occupées récupérées avec succès'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
 }
 
 module.exports = new AppointmentController();
