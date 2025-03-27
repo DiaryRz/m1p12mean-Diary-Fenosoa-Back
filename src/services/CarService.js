@@ -61,6 +61,14 @@ const CarService = {
       throw error;
     }
   },
+
+  async getCarByUserId(userId) {
+    try {
+      return await Car.find({ user_id: userId }).populate("category_id");
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
 module.exports = CarService;

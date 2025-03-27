@@ -4,8 +4,8 @@ const generateCustomId = require('../utils/idGenerator');
 const WorkSchema = new mongoose.Schema({
     _id: { type: String },
     id_services: { type: String, ref: 'Service', required: true },
-    id_appointement: { type: String, ref: 'Appointment', required: true },
-    id_mechanics: { type: String, ref: 'User', required: true },
+    id_appointment: { type: String, ref: 'Appointment', required: true },
+    id_user: { type: String, ref: 'User', required: true },
     datetime_service_start: { type: Date, required: true },
     datetime_service_end: { type: Date }
 });

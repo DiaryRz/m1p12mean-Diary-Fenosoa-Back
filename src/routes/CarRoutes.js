@@ -5,6 +5,9 @@ const { verifyToken } = require("../services/AuthService");
 const router = express.Router();
 const carController = new CarController();
 
+// Route pour obtenir les voitures d'un utilisateur
+router.get("/user/:userId", carController.getCarsByUserId.bind(carController));
+
 // Routes CRUD
 router.post("", verifyToken, carController.createCar.bind(carController));
 router.post("/plate", verifyToken, carController.getCar.bind(carController));
