@@ -340,7 +340,7 @@ class AppointmentService {
         status: "en attente",
       })
         .populate("id_user")
-        .populate("id_car")
+        .populate({ path: "id_car", populate: { path: "category_id" } })
         .populate("services");
     } catch (error) {
       throw error;
@@ -445,7 +445,7 @@ class AppointmentService {
     });
 
     const counts = {};
-    // console.log(appointments);
+    console.log("s", appointments);
 
     let buffer = [];
     appointments.forEach((app) => {
@@ -485,7 +485,8 @@ class AppointmentService {
       endDate,
     );
 
-    console.log(All_appointment);
+    console.log("All ", All_appointment);
+
     const date_completement_occupe = [];
 
     for (const date in All_appointment) {
@@ -493,7 +494,6 @@ class AppointmentService {
         date_completement_occupe.push(date);
       }
     }
-    console.log(date_completement_occupe);
 
     return date_completement_occupe;
   }
