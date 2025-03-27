@@ -11,6 +11,8 @@ const CarCategoryRoutes = require("./src/routes/CarCategoryRoutes");
 const CarRoutes = require("./src/routes/CarRoutes");
 const ConfigRoutes = require("./src/routes/configRoutes");
 const PaymentRoutes = require('./src/routes/PaymentRoutes');
+const AppointmentServicesStatusRoutes = require('./src/routes/AppointmentServicesStatusRoutes');
+const WorkRoutes = require('./src/routes/WorkRoutes');
 
 const app = express();
 const env = process.env.NODE_ENV;
@@ -53,6 +55,8 @@ app.use("/service", ServiceRoutes);
 app.use("/appointment", AppointmentRoutes);
 app.use("/config", ConfigRoutes);
 app.use("/payment", PaymentRoutes);
+app.use("/appointment_view", AppointmentServicesStatusRoutes);
+app.use("/work", WorkRoutes);
 
 //initialisation de la racine /
 app.get("/", (req, res) => {
