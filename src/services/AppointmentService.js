@@ -58,9 +58,9 @@ class AppointmentService {
   async addDate_appointment(date_appointment, id_appointement) {
     try {
       const appointment = await Appointment.findById(id_appointement)
-        .populate('id_user')
-        .populate('id_car')
-        .populate('services');
+        .populate("id_user")
+        .populate("id_car")
+        .populate("services");
 
       //console.log(appointment);
       if (!appointment) {
@@ -337,11 +337,11 @@ class AppointmentService {
     try {
       return await Appointment.find({
         date_appointment: { $ne: null },
-        status: "en attente"
+        status: "en attente",
       })
-      .populate("id_user")
-      .populate("id_car")
-      .populate("services");
+        .populate("id_user")
+        .populate("id_car")
+        .populate("services");
     } catch (error) {
       throw error;
     }
@@ -351,19 +351,19 @@ class AppointmentService {
   async confirmAppointment(id_appointement) {
     try {
       const appointment = await Appointment.findById(id_appointement)
-        .populate('id_user')
-        .populate('id_car')
-        .populate('services');
+        .populate("id_user")
+        .populate("id_car")
+        .populate("services");
 
       console.log(appointment);
       if (!appointment) {
-        throw new Error('Rendez-vous non trouvé');
+        throw new Error("Rendez-vous non trouvé");
       }
 
       // Créer l'historique avant la modification
       await HistoryAppointmentService.createHistoryFromAppointment(
         appointment.toObject(),
-        'confirm'
+        "confirm",
       );
 
       // Mettre à jour le rendez-vous
@@ -372,117 +372,129 @@ class AppointmentService {
 
       return updatedAppointment;
     } catch (error) {
-      console.error('Erreur dans addDate_appointment:', error);
+      console.error("Erreur dans addDate_appointment:", error);
       throw error;
     }
   }
 
-  async getAppointmentsCountBeforeHourBetweenDates( startDate, endDate) {
+  async getAppointmentsCountBeforeHourBetweenDates(startDate, endDate) {
     try {
       const appointments = await Appointment.aggregate([
         {
           $match: {
-            date_appointment: { 
+            date_appointment: {
               $ne: null,
               $gte: new Date(startDate),
-              $lte: new Date(endDate)
+              $lte: new Date(endDate),
             },
-            status: "confirmé"
-          }
+            status: "confirmé",
+          },
         },
         {
           $group: {
             _id: {
-              $dateToString: { 
-                format: "%Y-%m-%d", 
-                date: "$date_appointment" 
-              }
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$date_appointment",
+              },
             },
             count: { $sum: 1 },
-            appointments: { 
+            appointments: {
               $push: {
                 _id: "$_id",
                 date_appointment: "$date_appointment",
                 status: "$status",
                 total_price: "$total_price",
-                total_duration: "$total_duration"
-              }
-            }
-          }
+                total_duration: "$total_duration",
+              },
+            },
+          },
         },
         {
-          $sort: { _id: 1 }
-        }
+          $sort: { _id: 1 },
+        },
       ]);
 
-      return appointments.map(item => ({
+      return appointments.map((item) => ({
         date: item._id,
         nombreRendezVous: item.count,
-        details: item.appointments.map(apt => ({
+        details: item.appointments.map((apt) => ({
           id: apt._id,
           heure: new Date(apt.date_appointment),
           status: apt.status,
           prix_total: apt.total_price,
-          duree_totale: apt.total_duration
-        }))
+          duree_totale: apt.total_duration,
+        })),
       }));
     } catch (error) {
-      console.error('Erreur dans getAppointmentsCountBeforeHourBetweenDates:', error);
+      console.error(
+        "Erreur dans getAppointmentsCountBeforeHourBetweenDates:",
+        error,
+      );
       throw error;
     }
   }
-  
-  async getAppointmentsInWhichDay(hour , startDate, endDate) {
+
+  async getAppointmentsInWhichDay(hour, startDate, endDate) {
     startDate = new Date(startDate);
     endDate = new Date(endDate);
-    
+
     const appointments = await Appointment.find({
       date_appointment: { $gte: startDate, $lte: endDate },
-      status: "confirmé"
+      status: "confirmé",
     });
-  
+
     const counts = {};
-    
-    appointments.forEach(app => {
+    // console.log(appointments);
+
+    let buffer = [];
+    appointments.forEach((app) => {
       let date = new Date(app.date_appointment);
       let adjustedDate = new Date(date);
-      
+
       // Si l'heure dépasse 15h, on le décale au jour suivant
-      if (date.getUTCHours() >= hour) {
+      if (date.getUTCHours() >= hour.getUTCHours()) {
         adjustedDate.setUTCDate(adjustedDate.getUTCDate() + 1);
       }
-      
       // Vérifier si la date ajustée tombe un week-end (Samedi ou Dimanche)
-      if (adjustedDate.getUTCDay() === 6) { // Samedi -> Lundi
+      if (adjustedDate.getUTCDay() === 6) {
+        // Samedi -> Lundi
         adjustedDate.setUTCDate(adjustedDate.getUTCDate() + 2);
-      } else if (adjustedDate.getUTCDay() === 0) { // Dimanche -> Lundi
+      } else if (adjustedDate.getUTCDay() === 0) {
+        // Dimanche -> Lundi
         adjustedDate.setUTCDate(adjustedDate.getUTCDate() + 1);
       }
-      
-      const dateStr = adjustedDate.toISOString().split('T')[0];
+
+      const dateStr = adjustedDate.toISOString().split("T")[0];
       counts[dateStr] = (counts[dateStr] || 0) + 1;
     });
-    
+
     return counts;
   }
 
   async getDateCompletementOccupe(startDate, endDate) {
-    const configString = localStorage.getItem('config');
-    if (!configString) {
-      config = await ConfigService.getLatest();
-    }
-    console.log(configString);
-    const max_appointment_per_day = config.max_appointment_per_day;
-    const after_hour_appointment = config.after_hour_appointment;
-    const All_appointment = await this.getAppointmentsInWhichDay(after_hour_appointment , startDate, endDate);
+    const configString = await ConfigService.getLatest();
+    const max_appointment_per_day = configString.max_appointment_per_day;
+    const after_hour_appointment = new Date(
+      configString.after_hour_appointment,
+    );
+
+    const All_appointment = await this.getAppointmentsInWhichDay(
+      after_hour_appointment,
+      startDate,
+      endDate,
+    );
+
     console.log(All_appointment);
-    const date_completement_occupe = []
-    
+    const date_completement_occupe = [];
+
     for (const date in All_appointment) {
       if (All_appointment[date] >= max_appointment_per_day) {
-        date_completement_occupe.push(date)
+        date_completement_occupe.push(date);
       }
     }
+    console.log(date_completement_occupe);
+
     return date_completement_occupe;
   }
 
@@ -525,7 +537,6 @@ class AppointmentService {
       throw error;
     }
   }
-
 }
 
 module.exports = AppointmentService;
