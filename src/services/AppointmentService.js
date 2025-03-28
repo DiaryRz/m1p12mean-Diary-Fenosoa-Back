@@ -445,7 +445,6 @@ class AppointmentService {
     });
 
     const counts = {};
-    console.log("s", appointments);
 
     let buffer = [];
     appointments.forEach((app) => {
@@ -484,8 +483,6 @@ class AppointmentService {
       startDate,
       endDate,
     );
-
-    console.log("All ", All_appointment);
 
     const date_completement_occupe = [];
 

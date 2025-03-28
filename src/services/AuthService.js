@@ -5,14 +5,13 @@ const userService = require("../services/UserService");
 const { cookie_config, get_xcookie, set_xcookie } = require("./cookie.utils");
 
 const generateTokens = (user) => {
-  //console.log("generateTokens");
   const accessToken = jwt.sign(
-    { id: user._id, role: user.role },
+    { id: user._id, role: user.role_id },
     process.env.ACCESS_SECRET,
     { expiresIn: "1h" },
   );
   const refreshToken = jwt.sign(
-    { id: user._id, role: user.role },
+    { id: user._id, role: user.role_id },
     process.env.REFRESH_SECRET,
     { expiresIn: "7d" },
   );
@@ -41,7 +40,6 @@ const verifyToken = (req, res, next) => {
   let token = get_token(req, "accessToken");
 
   if (!token) {
-    //console.log("No token provided");
     return res
       .status(401)
       .json({ message: "Access Denied - No token provided", success: false });
@@ -119,7 +117,8 @@ const login = async (req, res) => {
     mail: mail,
     role_id: { $in: roles },
     status: 0,
-  });
+  }).populate({ path: "role_id" });
+
   if (!user)
     return res.status(400).json({
       message: "User not found",
@@ -135,10 +134,7 @@ const login = async (req, res) => {
     });
 
   const { accessToken, refreshToken } = generateTokens(user);
-  res
-    /* .cookie("accessToken", accessToken, cookie_config)
-    .cookie("refreshToken", refreshToken, cookie_config) */
-    .json({ accessToken, refreshToken, userId: user._id });
+  res.json({ accessToken, refreshToken, userId: user._id });
 };
 
 const refresh = async (req, res) => {
