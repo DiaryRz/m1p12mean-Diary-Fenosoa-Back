@@ -41,24 +41,24 @@ class AppointmentController {
   async getById(req, res) {
     try {
       const id = req.query.id;
-      
+
       if (!id) {
         return res.status(400).json({
           success: false,
-          message: "L'ID du rendez-vous est requis"
+          message: "L'ID du rendez-vous est requis",
         });
       }
 
       const appointmentService = new AppointmentService();
       const appointment = await appointmentService.getById(id);
-      
+
       if (!appointment) {
         return res.status(404).json({
           success: false,
           message: "Rendez-vous non trouvé",
         });
       }
-      
+
       res.status(200).json({
         success: true,
         data: appointment,
@@ -185,172 +185,174 @@ class AppointmentController {
         id_appointment,
       );
 
-            res.status(200).json({
-                success: true,
-                message: 'Date du rendez-vous mise à jour avec succès'
-            });
-        } catch (error) {
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
+      res.status(200).json({
+        success: true,
+        message: "Date du rendez-vous mise à jour avec succès",
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
     }
+  }
 
-    async confirmAppointment(req, res) {
-        try {
-            const { id_appointment } = req.body;
+  async confirmAppointment(req, res) {
+    try {
+      const { id_appointment } = req.body;
+      const appointmentService = new AppointmentService();
+      await appointmentService.confirmAppointment(id_appointment);
 
-            const appointmentService = new AppointmentService();
-            await appointmentService.confirmAppointment(id_appointment);
-
-            res.status(200).json({
-                success: true,
-                message: 'Rendez-vous confirmé avec succès'
-            });
-        } catch (error) {
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
+      res.status(200).json({
+        success: true,
+        message: "Rendez-vous confirmé avec succès",
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
     }
+  }
 
-    async getPendingWithDate(req, res) {
-        try {
-            const appointmentService = new AppointmentService();
-            const appointments = await appointmentService.getPendingAppointmentsWithDate();
-            
-            res.status(200).json({
-                success: true,
-                data: appointments,
-                message: 'Rendez-vous en attente récupérés avec succès'
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
+  async getPendingWithDate(req, res) {
+    try {
+      const appointmentService = new AppointmentService();
+      const appointments =
+        await appointmentService.getPendingAppointmentsWithDate();
+
+      res.status(200).json({
+        success: true,
+        data: appointments,
+        message: "Rendez-vous en attente récupérés avec succès",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
+  }
 
-    async getAppointmentsCountBetweenDates(req, res) {
-        try {
-            const { startDate, endDate } = req.query;
-            
-            if (!startDate || !endDate) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Les dates sont requises'
-                });
-            }
+  async getAppointmentsCountBetweenDates(req, res) {
+    try {
+      const { startDate, endDate } = req.query;
 
-            const appointmentService = new AppointmentService();
-            const appointments = await appointmentService.getAppointmentsCountBeforeHourBetweenDates(
-                startDate,
-                endDate
-            );
-            
-            res.status(200).json({
-                success: true,
-                data: appointments,
-                message: 'Statistiques des rendez-vous récupérées avec succès'
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
+      if (!startDate || !endDate) {
+        return res.status(400).json({
+          success: false,
+          message: "Les dates sont requises",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointments =
+        await appointmentService.getAppointmentsCountBeforeHourBetweenDates(
+          startDate,
+          endDate,
+        );
+
+      res.status(200).json({
+        success: true,
+        data: appointments,
+        message: "Statistiques des rendez-vous récupérées avec succès",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
+  }
 
-    async getAppointmentsInWhichDay(req, res) {
-        try {
-            const { hour, startDate, endDate } = req.query;
-            
-            if (!hour || !startDate || !endDate) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'L\'heure et les dates sont requises'
-                });
-            }
+  async getAppointmentsInWhichDay(req, res) {
+    try {
+      const { hour, startDate, endDate } = req.query;
 
-            const appointmentService = new AppointmentService();
-            const appointments = await appointmentService.getAppointmentsInWhichDay(
-                parseInt(hour),
-                startDate,
-                endDate
-            );
-            
-            res.status(200).json({
-                success: true,
-                data: appointments,
-                message: 'Statistiques des rendez-vous récupérées avec succès'
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
+      if (!hour || !startDate || !endDate) {
+        return res.status(400).json({
+          success: false,
+          message: "L'heure et les dates sont requises",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointments = await appointmentService.getAppointmentsInWhichDay(
+        parseInt(hour),
+        startDate,
+        endDate,
+      );
+
+      res.status(200).json({
+        success: true,
+        data: appointments,
+        message: "Statistiques des rendez-vous récupérées avec succès",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
+  }
 
-    async getDateCompletementOccupe(req, res) {
-        try {
-            const { startDate, endDate } = req.query;
-            
-            if (!startDate || !endDate) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Les dates de début et de fin sont requises'
-                });
-            }
+  async getDateCompletementOccupe(req, res) {
+    try {
+      const { startDate, endDate } = req.query;
 
-            const appointmentService = new AppointmentService();
-            const datesOccupees = await appointmentService.getDateCompletementOccupe(
-                startDate,
-                endDate
-            );
-            
-            res.status(200).json({
-                success: true,
-                data: datesOccupees,
-                message: 'Dates complètement occupées récupérées avec succès'
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
+      if (!startDate || !endDate) {
+        return res.status(400).json({
+          success: false,
+          message: "Les dates de début et de fin sont requises",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const datesOccupees = await appointmentService.getDateCompletementOccupe(
+        startDate,
+        endDate,
+      );
+
+      res.status(200).json({
+        success: true,
+        data: datesOccupees,
+        message: "Dates complètement occupées récupérées avec succès",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
+  }
 
-    async getAppointmentsByUser(req, res) {
-        try {
-            const { userId } = req.params;
-            
-            if (!userId) {
-                return res.status(400).json({
-                    success: false,
-                    message: "L'ID de l'utilisateur est requis"
-                });
-            }
+  async getAppointmentsByUser(req, res) {
+    try {
+      const { userId } = req.params;
 
-            const appointmentService = new AppointmentService();
-            const appointments = await appointmentService.getAppointmentsByUserId(userId);
-            
-            res.status(200).json({
-                success: true,
-                data: appointments,
-                message: "Rendez-vous récupérés avec succès"
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: "L'ID de l'utilisateur est requis",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointments =
+        await appointmentService.getAppointmentsByUserId(userId);
+
+      res.status(200).json({
+        success: true,
+        data: appointments,
+        message: "Rendez-vous récupérés avec succès",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
+  }
 }
 
 module.exports = new AppointmentController();
