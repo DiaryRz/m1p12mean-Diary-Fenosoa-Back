@@ -52,10 +52,10 @@ router.patch("/:notificationId/read", verifyToken, async (req, res) => {
     const notification = await Notification.findOneAndUpdate(
       {
         _id: req.params.notificationId,
-        recipient: req.user.id,
       },
       { read: true },
     );
+
     if (!notification) {
       return res.status(404).json({ error: "Notification not found" });
     }

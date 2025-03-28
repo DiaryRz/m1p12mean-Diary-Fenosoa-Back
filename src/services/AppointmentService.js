@@ -355,7 +355,6 @@ class AppointmentService {
         .populate("id_car")
         .populate("services");
 
-      console.log(appointment);
       if (!appointment) {
         throw new Error("Rendez-vous non trouvé");
       }
@@ -372,7 +371,7 @@ class AppointmentService {
 
       return updatedAppointment;
     } catch (error) {
-      console.error("Erreur dans addDate_appointment:", error);
+      console.error("Erreur dans confirmAppointment:", error);
       throw error;
     }
   }

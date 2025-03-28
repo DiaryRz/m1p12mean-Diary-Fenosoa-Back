@@ -17,6 +17,7 @@ router.get(
   AppointmentController.getPendingWithDate,
 );
 router.post("/confirm", verifyToken, AppointmentController.confirmAppointment);
+
 router.get(
   "/date/between",
   verifyToken,
