@@ -4,7 +4,6 @@ const AmountByMonth = require("../../models/views/amount");
 class StatisticsService {
     async getAppointmentsByMonth(year) {
         try {
-            console.log("Année reçue dans le service:", year);
 
             const query = {};
             if (year) {
@@ -31,7 +30,6 @@ class StatisticsService {
                 total_confirmed_or_paid: existingData[month] || 0
             }));
 
-            console.log("Résultats finaux:", JSON.stringify(result, null, 2));
             return result;
         } catch (error) {
             console.error("Erreur dans le service:", error);
@@ -41,7 +39,6 @@ class StatisticsService {
 
     async getAmountByMonth(year) {
         try {
-            console.log("Année reçue dans le service:", year);
 
             const query = {};
             if (year) {
@@ -68,7 +65,6 @@ class StatisticsService {
                 total_payed: existingData[month] || 0
             }));
 
-            console.log("Résultats finaux:", JSON.stringify(result, null, 2));
             return result;
         } catch (error) {
             console.error("Erreur dans le service:", error);

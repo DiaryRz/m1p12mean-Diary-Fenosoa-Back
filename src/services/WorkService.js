@@ -29,7 +29,6 @@ class WorkService {
                     status: "done",
                     date_pick_up: new Date() // Optionnel : ajouter la date de fin
                 });
-                console.log(`Appointment ${appointment._id} marked as done`); // Pour le debug
             } else {
                 console.log(`Services restants: ${appointment.services.length - workPerAppointment.length}`); // Pour le debug
             }

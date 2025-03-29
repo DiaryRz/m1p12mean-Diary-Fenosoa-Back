@@ -32,7 +32,6 @@ const get_token = (req, token_name) => {
   if (!token) {
     token = req.cookies?.[token_name];
   }
-  // console.log(token_name + ": " + token);
   return token;
 };
 
@@ -112,7 +111,6 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { mail, password, roles } = req.body;
-  // console.log(roles);
   const user = await User.findOne({
     mail: mail,
     role_id: { $in: roles },
@@ -125,7 +123,6 @@ const login = async (req, res) => {
       error: { mail: true, phone: true, password: false },
     });
 
-  // console.log(user);
   const validpassword = await bcrypt.compare(password, user.password);
   if (!validpassword)
     return res.status(400).json({
@@ -163,13 +160,11 @@ const refresh = async (req, res) => {
       msg: "Invalid Token",
     });
   } catch (err) {
-    //console.log("Invalid Token");
     return res.status(403).json({ message: "Invalid Token", success: false });
   }
 };
 
 const logout = (req, res) => {
-  //console.log("logout");
   res.clearCookie("accessToken", cookie_config);
   res.clearCookie("refreshToken", cookie_config);
   res.json("Logged out");

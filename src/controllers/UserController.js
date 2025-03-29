@@ -15,13 +15,11 @@ class UserController {
 
   async addEmployee(req, res) {
     try {
-      // console.log(req.body);
       const user_exist = await userService.userExist([
         { mail: req.body.mail },
         { CIN: req.body.CIN },
         { phone: req.body.phone },
       ]);
-      // console.log(user_exist);
       if (user_exist.exist) {
         const field_taken = {
           mail: user_exist.user.mail == req.body.mail,
@@ -49,7 +47,6 @@ class UserController {
   async getAllUsers(req, res) {
     try {
       const users = await userService.getAllUsers();
-      // console.log(users);
       return res.json(users);
     } catch (error) {
       res

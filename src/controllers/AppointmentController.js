@@ -3,8 +3,6 @@ const AppointmentService = require("../services/AppointmentService");
 class AppointmentController {
   // Créer un nouveau rendez-vous
   async create(req, res) {
-    //console.log(req.body);
-
     try {
       const appointment = await AppointmentService.create(req.body);
       res.status(201).json({
@@ -13,7 +11,6 @@ class AppointmentController {
         message: "Rendez-vous créé avec succès",
       });
     } catch (error) {
-      //console.log(error);
       res.status(400).json({
         success: false,
         message: error.message,

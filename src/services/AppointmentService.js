@@ -62,7 +62,6 @@ class AppointmentService {
         .populate("id_car")
         .populate("services");
 
-      //console.log(appointment);
       if (!appointment) {
         throw new Error("Rendez-vous non trouvé");
       }

@@ -6,7 +6,6 @@ const UserHistoryService = require("./UserHistoryService");
 const UserService = {
   async createUser(userData) {
     try {
-      //console.log("UserService: Creating user with data:" + userData);
       // Verify if role exists first
       const roleExists = await Role.findById(userData.role_id);
       if (!roleExists) {
@@ -92,9 +91,7 @@ const UserService = {
 
   async FireUser(id) {
     try {
-      //console.log("UserService: Firing user with id:" + id);
       const user = await User.findById(id);
-      //console.log("UserService: Firing user with id:" + id);
       if (user) {
         UserHistoryService.createUserHistory(user);
         user.status = 1;
