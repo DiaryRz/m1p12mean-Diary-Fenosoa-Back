@@ -47,6 +47,7 @@ const PaymentRoutes = require("./src/routes/PaymentRoutes");
 const AppointmentServicesStatusRoutes = require("./src/routes/AppointmentServicesStatusRoutes");
 const NotificationRoutes = require("./src/routes/NotificationRoutes");
 const WorkRoutes = require("./src/routes/WorkRoutes");
+const StatisticsRoutes = require("./src/routes/StatisticsRoutes");
 
 const server = createServer(app);
 
@@ -69,6 +70,7 @@ app.use("/payment", PaymentRoutes);
 app.use("/appointment_view", AppointmentServicesStatusRoutes);
 app.use("/work", WorkRoutes);
 app.use("/notifications", NotificationRoutes);
+app.use("/statistics", StatisticsRoutes);
 
 app.get("/", (req, res) => {
   res.send("hello world");
