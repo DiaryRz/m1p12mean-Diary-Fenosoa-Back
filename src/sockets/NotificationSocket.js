@@ -31,6 +31,7 @@ function setupSocketServer(server) {
 
       if (user.role_id.role_name != "client") {
         socket.join(`employee_${user.role_id.role_name}`);
+        socket.join(`employee_employee`);
       }
       next();
     } catch (error) {
@@ -79,7 +80,7 @@ function setupSocketServer(server) {
           console.log("\t send to room client");
           io.to(`employee_${to_role}`).emit("new-notification", notification);
         } else if (recipientId) {
-          console.log("\t send to user ", recipientId);
+          console.log("\tSend to user ", recipientId);
           const recipient = connectedUsers.get(recipientId);
           console.log(recipientId, recipientId);
           const recipientSocketId = recipient.socket;

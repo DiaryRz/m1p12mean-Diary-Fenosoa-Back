@@ -5,11 +5,18 @@ const User = require("../models/Users"); // Adjust path as needed
 const { verifyToken } = require("../services/AuthService");
 
 // Get user's notifications
-router.get("/user", verifyToken, async (req, res) => {
+router.get("/:context", verifyToken, async (req, res) => {
+  const cond =
+    req.params.context == "client"
+      ? { recipient: req.user._id }
+      : req.params.context == "manager"
+        ? { role: "manager" }
+        : req.params.context == "mechanics"
+          ? { role: "mechanics" }
+          : { role: "employee" };
+
   try {
-    const notifications = await Notification.find({
-      recipient: req.user._id,
-    })
+    const notifications = await Notification.find(cond)
       .sort({ createdAt: -1 })
       .limit(50)
       .populate("sender", "name email");
@@ -17,32 +24,6 @@ router.get("/user", verifyToken, async (req, res) => {
     res.json(notifications);
   } catch (error) {
     res.status(500).json({ error: "Error fetching notifications" });
-  }
-});
-
-// Send a notification
-router.post("/send", verifyToken, async (req, res) => {
-  try {
-    const { recipientId, message } = req.body;
-
-    // Validate recipient exists
-    const recipient = await User.findById(recipientId);
-    if (!recipient) {
-      return res.status(404).json({ error: "Recipient not found" });
-    }
-
-    // Create notification
-    const notification = new Notification({
-      recipient: recipientId,
-      sender: req.user._id,
-      message: message,
-    });
-
-    await notification.save();
-
-    res.status(201).json(notification);
-  } catch (error) {
-    res.status(500).json({ error: "Error sending notification" });
   }
 });
 
