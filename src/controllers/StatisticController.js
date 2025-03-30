@@ -27,6 +27,18 @@ class StatisticsController {
         }
     }
 
+    async getNbServicesByMonth(req, res) {
+        try {
+            const { year } = req.query;
+            const services = await statisticsService.getNbServicesByMonth(
+                year ? Number(year) : undefined
+            );
+            res.status(200).json(services);
+        } catch (error) {
+            console.error("Erreur dans le contrôleur:", error);
+            res.status(500).json({ message: error.message });
+        }
+    }
 }
 
 module.exports = new StatisticsController(); 

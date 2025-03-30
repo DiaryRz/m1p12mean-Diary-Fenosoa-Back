@@ -1,5 +1,6 @@
 const AppointmentsByMonth = require("../../models/views/statistics");
 const AmountByMonth = require("../../models/views/amount");
+const NbServicesByMonth = require("../../models/views/nb_appointment");
 
 class StatisticsService {
     async getAppointmentsByMonth(year) {
@@ -69,6 +70,35 @@ class StatisticsService {
         } catch (error) {
             console.error("Erreur dans le service:", error);
             throw new Error(`Erreur lors de la récupération des montants: ${error.message}`);
+        }
+    }
+
+    async getNbServicesByMonth(year, month) {
+        try {
+            const query = {};
+            if (year) {
+                query['_id.year'] = Number(year);
+            }
+            if (month) {
+                query['_id.month'] = Number(month);
+            }
+
+            const statistics = await NbServicesByMonth.find(query);
+            
+            // Grouper les résultats par service
+            const result = statistics.map(stat => ({
+                _id: {
+                    year: stat._id.year,
+                    month: stat._id.month,
+                    service: stat._id.service
+                },
+                total_services_taken: stat.total_services_taken
+            }));
+
+            return result;
+        } catch (error) {
+            console.error("Erreur dans le service:", error);
+            throw new Error(`Erreur lors de la récupération des services: ${error.message}`);
         }
     }
 
