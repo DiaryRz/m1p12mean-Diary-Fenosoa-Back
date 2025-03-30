@@ -533,6 +533,27 @@ class AppointmentService {
       throw error;
     }
   }
+
+  async getAppointmentsVerified(userId) {
+    try {
+      const appointments = await Appointment.find({
+        id_user: userId,
+        status: "validé",
+      })
+        .populate("id_user")
+        .populate({ path: "id_car", populate: { path: "category_id" } })
+        .populate("services")
+        .sort({ date_appointment: -1 }); // Du plus récent au plus ancien
+
+      if (!appointments) {
+        throw new Error("Aucun rendez-vous trouvé pour cet utilisateur");
+      }
+
+      return appointments;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = AppointmentService;

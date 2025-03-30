@@ -46,6 +46,12 @@ router.get(
   AppointmentController.getAppointmentsByUser,
 );
 
+router.get(
+  "/verified/:userId",
+  verifyToken,
+  AppointmentController.getAppointmentsVerified,
+);
+
 // Routes CRUD pour les rendez-vous
 router.post("/", verifyToken, AppointmentController.create);
 router.get("/", verifyToken, AppointmentController.getAll);
