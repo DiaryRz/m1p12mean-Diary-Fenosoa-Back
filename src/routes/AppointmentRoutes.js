@@ -52,9 +52,9 @@ router.get(
   AppointmentController.getAppointmentsVerified,
 );
 
-router.put("/:id_appointment/date-deposition", AppointmentController.updateDateDeposition);
+router.put("/:id_appointment/date-deposition", verifyToken , AppointmentController.updateDateDeposition);
 
-router.put("/:id_appointment/date-pickup", AppointmentController.updateDatePickup);
+router.put("/:id_appointment/date-pickup", verifyToken, AppointmentController.updateDatePickup);
 
 // Routes CRUD pour les rendez-vous
 router.post("/", verifyToken, AppointmentController.create);
