@@ -350,6 +350,95 @@ class AppointmentController {
       });
     }
   }
+
+  async getAppointmentsVerified(req, res) {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: "L'ID de l'utilisateur est requis",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointments =
+        await appointmentService.getAppointmentsVerified(userId);
+      res.status(200).json({
+        success: true,
+        data: appointments,
+        message: "Rendez-vous récupérés avec succès",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  async updateDateDeposition(req, res) {
+    try {
+      const { id_appointment } = req.params;
+
+      if (!id_appointment) {
+        return res.status(400).json({
+          success: false,
+          message: "L'ID du rendez-vous est requis",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointment = await appointmentService.updateDateDeposition(id_appointment);
+
+      res.status(200).json({
+        success: true,
+        data: appointment,
+        message: "Date de dépôt mise à jour avec succès",
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  async updateDatePickup(req, res) {
+    try {
+      const { id_appointment } = req.params;
+      const { date_pick_up } = req.body;
+
+      if (!id_appointment) {
+        return res.status(400).json({
+          success: false,
+          message: "L'ID du rendez-vous est requis",
+        });
+      }
+
+      if (!date_pick_up) {
+        return res.status(400).json({
+          success: false,
+          message: "La date de récupération est requise",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointment = await appointmentService.updateDatePickup(id_appointment, new Date(date_pick_up));
+
+      res.status(200).json({
+        success: true,
+        data: appointment,
+        message: "Date de récupération mise à jour avec succès",
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
 }
 
 module.exports = new AppointmentController();

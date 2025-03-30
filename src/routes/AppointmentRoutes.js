@@ -46,6 +46,16 @@ router.get(
   AppointmentController.getAppointmentsByUser,
 );
 
+router.get(
+  "/verified/:userId",
+  verifyToken,
+  AppointmentController.getAppointmentsVerified,
+);
+
+router.put("/:id_appointment/date-deposition", verifyToken , AppointmentController.updateDateDeposition);
+
+router.put("/:id_appointment/date-pickup", verifyToken, AppointmentController.updateDatePickup);
+
 // Routes CRUD pour les rendez-vous
 router.post("/", verifyToken, AppointmentController.create);
 router.get("/", verifyToken, AppointmentController.getAll);

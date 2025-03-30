@@ -532,6 +532,75 @@ class AppointmentService {
       throw error;
     }
   }
+
+  async getAppointmentsVerified(userId) {
+    try {
+      const appointments = await Appointment.find({
+        id_user: userId,
+        status: "validé",
+      })
+        .populate("id_user")
+        .populate({ path: "id_car", populate: { path: "category_id" } })
+        .populate("services")
+        .sort({ date_appointment: -1 }); // Du plus récent au plus ancien
+
+      if (!appointments) {
+        throw new Error("Aucun rendez-vous trouvé pour cet utilisateur");
+      }
+
+      return appointments;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateDateDeposition(id) {
+    try {
+      const appointment = await Appointment.findById(id);
+      if (!appointment) {
+        throw new Error("Rendez-vous non trouvé");
+      }
+
+      // Créer l'historique avant la modification
+      await HistoryAppointmentService.createHistoryFromAppointment(
+        appointment.toObject(),
+        "update",
+      );
+
+      // Mettre à jour la date de dépôt
+      appointment.date_deposition = new Date();
+      const updatedAppointment = await appointment.save();
+
+      return updatedAppointment;
+    } catch (error) {
+      console.error("Erreur dans updateDateDeposition:", error);
+      throw error;
+    }
+  }
+
+  async updateDatePickup(id, date_pick_up) {
+    try {
+      const appointment = await Appointment.findById(id);
+      if (!appointment) {
+        throw new Error("Rendez-vous non trouvé");
+      }
+
+      // Créer l'historique avant la modification
+      await HistoryAppointmentService.createHistoryFromAppointment(
+        appointment.toObject(),
+        "update",
+      );
+
+      // Mettre à jour la date de dépôt
+      appointment.date_pick_up = date_pick_up;
+      const updatedAppointment = await appointment.save();
+
+      return updatedAppointment;
+    } catch (error) {
+      console.error("Erreur dans updateDateDeposition:", error);
+      throw error;
+    }
+  }
 }
 
 module.exports = AppointmentService;
