@@ -351,6 +351,33 @@ class AppointmentController {
     }
   }
 
+  async getAppointmentsWaiting(req, res) {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: "L'ID de l'utilisateur est requis",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointments =
+        await appointmentService.getAppointmentsWaiting(userId);
+      res.status(200).json({
+        success: true,
+        data: appointments,
+        message: "Rendez-vous récupérés avec succès",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
   async getAppointmentsVerified(req, res) {
     try {
       const { userId } = req.params;
@@ -390,7 +417,8 @@ class AppointmentController {
       }
 
       const appointmentService = new AppointmentService();
-      const appointment = await appointmentService.updateDateDeposition(id_appointment);
+      const appointment =
+        await appointmentService.updateDateDeposition(id_appointment);
 
       res.status(200).json({
         success: true,
@@ -425,7 +453,10 @@ class AppointmentController {
       }
 
       const appointmentService = new AppointmentService();
-      const appointment = await appointmentService.updateDatePickup(id_appointment, new Date(date_pick_up));
+      const appointment = await appointmentService.updateDatePickup(
+        id_appointment,
+        new Date(date_pick_up),
+      );
 
       res.status(200).json({
         success: true,

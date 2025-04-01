@@ -22,7 +22,7 @@ class AppointmentService {
       }
 
       const appointmentService = new AppointmentService();
-      const detailsPrice = await appointmentService.price_appointement(
+      const detailsPrice = await appointmentService.price_appointment(
         appointmentData.id_car,
         appointmentData.services,
       );
@@ -40,24 +40,24 @@ class AppointmentService {
 
       const appointment = new Appointment(appointmentData);
 
-      const savedAppointement = await appointment.save();
+      const savedappointment = await appointment.save();
 
       const detailsWithAppointmentId = detailsPrice.map((detail) => ({
         ...detail,
-        id_appointement: savedAppointement._id,
+        id_appointment: savedappointment._id,
       }));
 
       await PriceDetails.insertMany(detailsWithAppointmentId);
 
-      return savedAppointement;
+      return savedappointment;
     } catch (error) {
       throw error;
     }
   }
 
-  async addDate_appointment(date_appointment, id_appointement) {
+  async addDate_appointment(date_appointment, id_appointment) {
     try {
-      const appointment = await Appointment.findById(id_appointement)
+      const appointment = await Appointment.findById(id_appointment)
         .populate("id_user")
         .populate("id_car")
         .populate("services");
@@ -83,7 +83,7 @@ class AppointmentService {
     }
   }
 
-  async price_appointement(id_car, services) {
+  async price_appointment(id_car, services) {
     if (!Array.isArray(services)) {
       throw new Error("services doit être un tableau");
     }
@@ -102,7 +102,7 @@ class AppointmentService {
 
     //tableau détaillé des prix
     const priceDetails = servicesData.map((service) => ({
-      id_appointement: null,
+      id_appointment: null,
       service_id: service._id,
       service_name: service.service_name,
       base_price: service.unit_price,
@@ -138,7 +138,7 @@ class AppointmentService {
 
   async createHistoryRecord(appointment, modificationType) {
     const historyData = {
-      date_appointement: appointment.date_appointement,
+      date_appointment: appointment.date_appointment,
       id_client: appointment.id_user,
       id_car: appointment.id_car,
       services: appointment.services,
@@ -347,9 +347,9 @@ class AppointmentService {
   }
 
   //l'admin confirme le rendez-vous
-  async confirmAppointment(id_appointement) {
+  async confirmAppointment(id_appointment) {
     try {
-      const appointment = await Appointment.findById(id_appointement)
+      const appointment = await Appointment.findById(id_appointment)
         .populate("id_user")
         .populate("id_car")
         .populate("services");
@@ -527,6 +527,26 @@ class AppointmentService {
         throw new Error("Aucun rendez-vous trouvé pour cet utilisateur");
       }
 
+      return appointments;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getAppointmentsWaiting(userId) {
+    try {
+      const appointments = await Appointment.find({
+        id_user: userId,
+        status: "en attente",
+      })
+        .populate("id_user")
+        .populate({ path: "id_car", populate: { path: "category_id" } })
+        .populate("services")
+        .sort({ date_appointment: -1 }); // Du plus récent au plus ancien
+
+      if (!appointments) {
+        throw new Error("Aucun rendez-vous trouvé pour cet utilisateur");
+      }
       return appointments;
     } catch (error) {
       throw error;

@@ -1,18 +1,16 @@
-const Config = require('../models/dtos/appointementsConfig');
+const Config = require("../models/dtos/appointmentsConfig");
 
 class ConfigService {
   async create(configData) {
     try {
       // Chercher une configuration existante
       const existingConfig = await Config.findOne();
-      
+
       if (existingConfig) {
         // Si une configuration existe, la mettre à jour
-        return await Config.findByIdAndUpdate(
-          existingConfig._id,
-          configData,
-          { new: true }
-        );
+        return await Config.findByIdAndUpdate(existingConfig._id, configData, {
+          new: true,
+        });
       } else {
         // Si aucune configuration n'existe, en créer une nouvelle
         const config = new Config(configData);
@@ -22,7 +20,7 @@ class ConfigService {
       throw error;
     }
   }
-  
+
   async getLatest() {
     try {
       return await Config.findOne().sort({ _id: -1 }).limit(1);

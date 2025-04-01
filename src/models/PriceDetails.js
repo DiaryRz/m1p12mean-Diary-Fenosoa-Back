@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const priceDetailsSchema = new mongoose.Schema(
   {
-    id_appointement: {
+    id_appointment: {
       type: String,
-      ref: "appointement",
+      ref: "appointment",
       required: true,
     },
     service_id: {

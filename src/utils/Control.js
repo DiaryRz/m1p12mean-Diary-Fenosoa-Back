@@ -14,7 +14,10 @@ const control_phone_number = (phone_number) => {
       };
       // throw new Error("Le numéro de téléphone doit contenir 12 chiffres avec le 261");
     }
-    return true;
+    return {
+      message: "OK",
+      ok: true,
+    };
   } catch (error) {
     return {
       message: "Erreur",
