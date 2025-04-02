@@ -5,7 +5,7 @@ const User = require("../models/Users"); // Adjust path as needed
 const { verifyToken } = require("../services/AuthService");
 
 // Get user's notifications
-router.post("/:context", verifyToken, async (req, res) => {
+router.post("/all/:context", verifyToken, async (req, res) => {
   const cond =
     req.params.context == "client"
       ? { recipient: req.body.userId }

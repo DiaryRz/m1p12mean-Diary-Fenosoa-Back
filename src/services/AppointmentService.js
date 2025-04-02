@@ -124,6 +124,16 @@ class AppointmentService {
       throw error;
     }
   }
+  async getCond(cond) {
+    try {
+      return await Appointment.find(cond)
+        .populate("id_user")
+        .populate("id_car")
+        .populate("services");
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async getById(id) {
     try {

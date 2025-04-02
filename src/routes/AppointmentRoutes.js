@@ -72,8 +72,8 @@ router.put(
 
 // Routes CRUD pour les rendez-vous
 router.post("/", verifyToken, AppointmentController.create);
+router.post("/get", verifyToken, AppointmentController.getCond);
 router.get("/", verifyToken, AppointmentController.getAll);
-// router.get('/client/:id', verifyToken, AppointmentController.getClientAppoitments);
 router.get("/byid", AppointmentController.getById);
 router.put("/:id", verifyToken, AppointmentController.update);
 router.patch("/:id/status", verifyToken, AppointmentController.updateStatus);

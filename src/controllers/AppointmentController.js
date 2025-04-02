@@ -21,7 +21,8 @@ class AppointmentController {
   // Récupérer tous les rendez-vous
   async getAll(req, res) {
     try {
-      const appointments = await AppointmentService.getAll();
+      const appointmentService = new AppointmentService();
+      const appointments = await appointmentService.getAll();
       res.status(200).json({
         success: true,
         data: appointments,
@@ -34,6 +35,22 @@ class AppointmentController {
     }
   }
 
+  async getCond(req, res) {
+    try {
+      const appointmentService = new AppointmentService();
+      console.log(req.body.cond);
+      const appointments = await appointmentService.getCond(req.body.cond);
+      res.status(200).json({
+        success: true,
+        data: appointments,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
   // Récupérer un rendez-vous par son ID
   async getById(req, res) {
     try {
