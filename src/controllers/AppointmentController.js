@@ -425,7 +425,7 @@ class AppointmentController {
   async updateDateDeposition(req, res) {
     try {
       const { id_appointment } = req.params;
-
+      console.log("id", id_appointment);
       if (!id_appointment) {
         return res.status(400).json({
           success: false,

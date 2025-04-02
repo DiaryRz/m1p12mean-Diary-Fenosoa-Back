@@ -74,6 +74,7 @@ class AppointmentService {
 
       // Mettre à jour le rendez-vous
       appointment.date_appointment = date_appointment;
+      appointment.status = "validé";
       const updatedAppointment = await appointment.save();
 
       return updatedAppointment;
@@ -587,6 +588,7 @@ class AppointmentService {
   async updateDateDeposition(id) {
     try {
       const appointment = await Appointment.findById(id);
+      console.log(appointment);
       if (!appointment) {
         throw new Error("Rendez-vous non trouvé");
       }
