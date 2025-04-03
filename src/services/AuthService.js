@@ -182,7 +182,6 @@ const refresh = async (req, res) => {
       success: true,
       regenerate: true,
       accessToken: newAccessToken,
-: newRefreshToken,
       userId: user._id,
     });
   } catch (err) {
