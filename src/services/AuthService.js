@@ -135,32 +135,77 @@ const login = async (req, res) => {
 };
 
 const refresh = async (req, res) => {
-  let refreshToken = get_token(req, "refreshToken");
+  // Get both refreshToken and accessToken from the request
+  const refreshToken = get_token(req, "refreshToken");
+  const accessToken = get_token(req, "accessToken"); // Add this line
 
-  if (!refreshToken)
-    return res
-      .status(401)
-      .json({ message: "No refresh token", success: false });
-  try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
-    if (!decoded) {
-      return res.status(403).json("Invalid refresh token");
-    }
-    const user = await User.findById(decoded.id);
-
-    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
-    /* res.cookie("accessToken", accessToken, cookie_config);
-    res.cookie("refreshToken", newRefreshToken, cookie_config); */
-    return res.json({
-      accessToken,
-      refreshToken: newRefreshToken,
-      userId: decoded.id,
-    });
+  if (!refreshToken || !accessToken) {
     return res.status(401).json({
-      msg: "Invalid Token",
+      success: false,
+      message: "Both access and refresh tokens are required",
+    });
+  }
+
+  try {
+    // Verify refresh token (must be valid)
+    const decodedRefresh = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+
+    // Verify access token (ignore expiration)
+    const decodedAccess = jwt.verify(accessToken, process.env.ACCESS_SECRET, {
+      ignoreExpiration: true,
+    });
+
+    // Check if user exists
+    const user = await User.findById(decodedRefresh.id); // or decodedAccess.id
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Only regenerate if access token is expired
+    const isAccessTokenExpired = Date.now() >= decodedAccess.exp * 1000;
+    if (!isAccessTokenExpired) {
+      return res.status(200).json({
+        success: true,
+        regenerate: false,
+        message: "Access token is still valid",
+      });
+    }
+
+    // Generate new tokens
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+      generateTokens(user);
+
+    return res.json({
+      success: true,
+      regenerate: true,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      userId: user._id,
     });
   } catch (err) {
-    return res.status(403).json({ message: "Invalid Token", success: false });
+    if (err instanceof jwt.TokenExpiredError) {
+      return res.status(403).json({
+        success: false,
+        error: { expire_refresh: true },
+        message: "Refresh token expired",
+      });
+    }
+
+    if (err instanceof jwt.JsonWebTokenError) {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid token",
+      });
+    }
+
+    console.error("Refresh token error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error during token refresh",
+    });
   }
 };
 
