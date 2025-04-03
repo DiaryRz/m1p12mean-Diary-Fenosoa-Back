@@ -80,9 +80,7 @@ function setupSocketServer(server) {
           console.log("\t send to room client");
           io.to(`employee_${to_role}`).emit("new-notification", notification);
         } else if (recipientId) {
-          console.log("\tSend to user ", recipientId);
           const recipient = connectedUsers.get(recipientId);
-          console.log(recipientId, recipientId);
           const recipientSocketId = recipient.socket;
           io.to(recipientSocketId).emit("new-notification", notification);
         }

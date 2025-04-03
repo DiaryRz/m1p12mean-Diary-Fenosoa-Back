@@ -7,6 +7,7 @@ const UserService = require("../services/UserService");
 const ServiceService = require("../services/ServiceService");
 const HistoryAppointmentService = require("./HistoryAppointmentService");
 const ConfigService = require("./ConfigService");
+const crypto = require("crypto");
 
 class AppointmentService {
   static async create(appointmentData) {
@@ -115,22 +116,52 @@ class AppointmentService {
     return priceDetails;
   }
 
-  async getAll() {
+  async getAll(page, itemsPerPage) {
+    const skip = (page - 1) * itemsPerPage;
     try {
-      return await Appointment.find()
+      const results = await Appointment.find()
         .populate("id_user")
         .populate("id_car")
-        .populate("services");
+        .populate("services")
+        .skip(skip)
+        .limit(itemsPerPage);
+      const totalDocuments = await Appointment.countDocuments({});
+      const totalPages = Math.ceil(totalDocuments / itemsPerPage);
+
+      return {
+        data: results,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPages,
+          totalDocuments: totalDocuments,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      };
     } catch (error) {
       throw error;
     }
   }
-  async getCond(cond) {
+  async getCond(cond, page, itemsPerPage) {
     try {
-      return await Appointment.find(cond)
+      const results = await Appointment.find(cond)
         .populate("id_user")
         .populate("id_car")
         .populate("services");
+
+      const totalDocuments = await Appointment.countDocuments(cond);
+      const totalPages = Math.ceil(totalDocuments / itemsPerPage);
+
+      return {
+        data: results,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPages,
+          totalDocuments: totalDocuments,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      };
     } catch (error) {
       throw error;
     }
@@ -151,6 +182,8 @@ class AppointmentService {
     const historyData = {
       date_appointment: appointment.date_appointment,
       id_client: appointment.id_user,
+      id_user: appointment.id_user,
+      date_reservation_request: appointment.date_reservation_request,
       id_car: appointment.id_car,
       services: appointment.services,
       total_price: appointment.total_price,
@@ -165,10 +198,7 @@ class AppointmentService {
   }
 
   async update(id, appointmentData) {
-    const session = await mongoose.startSession();
     try {
-      session.startTransaction();
-
       // Get original appointment
       const originalAppointment = await Appointment.findById(id);
       if (!originalAppointment) {
@@ -182,16 +212,13 @@ class AppointmentService {
       const updatedAppointment = await Appointment.findByIdAndUpdate(
         id,
         appointmentData,
-        { new: true, session },
+        { new: true },
       );
 
-      await session.commitTransaction();
       return updatedAppointment;
     } catch (error) {
-      await session.abortTransaction();
+      console.error("Update error:", error);
       throw error;
-    } finally {
-      session.endSession();
     }
   }
 
@@ -588,7 +615,7 @@ class AppointmentService {
   async updateDateDeposition(id) {
     try {
       const appointment = await Appointment.findById(id);
-      console.log(appointment);
+      // console.log(appointment);
       if (!appointment) {
         throw new Error("Rendez-vous non trouvé");
       }

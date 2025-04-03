@@ -63,8 +63,8 @@ const PayementService = {
 
   async PayTotal(paymentData) {
     // Démarrer une session pour la transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    /* const session = await mongoose.startSession();
+    session.startTransaction(); */
 
     try {
       // Validation du numéro de téléphone
@@ -79,7 +79,7 @@ const PayementService = {
         throw new Error("Rendez-vous non trouvé");
       }
 
-      if (appointment.status !== "confirmé") {
+      if (appointment.status !== "finie") {
         throw new Error("Le paiement de la moitié n'est pas encore effectué");
       }
 
@@ -88,34 +88,25 @@ const PayementService = {
       paymentData.amount_payed =
         appointment.total_price - (appointment.total_payed || 0);
       const payment = new Payment(paymentData);
-      await payment.save({ session });
-
+      await payment.save();
       // Mettre à jour le rendez-vous avec la session
       const newTotalPayed =
         (appointment.total_payed || 0) + paymentData.amount_payed;
-      await appointment.updateOne(
-        {
-          total_payed: newTotalPayed,
-          status: "payé", // Mise à jour du statut après le paiement de 100%
-          ticket_recup: generateTicket(),
-        },
-        { session },
-      );
+      await appointment.updateOne({
+        total_payed: newTotalPayed,
+        status: "payé", // Mise à jour du statut après le paiement de 100%
+        ticket_recup: generateTicket(appointment.id_car.immatriculation),
+      });
 
       // Si tout s'est bien passé, valider la transaction
-      await session.commitTransaction();
-
       return {
         ...payment.toObject(),
         newStatus: "payé",
       };
     } catch (error) {
       // En cas d'erreur, annuler la transaction
-      await session.abortTransaction();
       throw error;
     } finally {
-      // Terminer la session dans tous les cas
-      session.endSession();
     }
   },
 

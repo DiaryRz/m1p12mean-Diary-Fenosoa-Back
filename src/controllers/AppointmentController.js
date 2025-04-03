@@ -21,8 +21,10 @@ class AppointmentController {
   // Récupérer tous les rendez-vous
   async getAll(req, res) {
     try {
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 10;
       const appointmentService = new AppointmentService();
-      const appointments = await appointmentService.getAll();
+      const appointments = await appointmentService.getAll(page, limit);
       res.status(200).json({
         success: true,
         data: appointments,
@@ -38,8 +40,13 @@ class AppointmentController {
   async getCond(req, res) {
     try {
       const appointmentService = new AppointmentService();
-      console.log(req.body.cond);
-      const appointments = await appointmentService.getCond(req.body.cond);
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 10;
+      const appointments = await appointmentService.getCond(
+        req.body.cond,
+        page,
+        limit,
+      );
       res.status(200).json({
         success: true,
         data: appointments,
@@ -88,7 +95,7 @@ class AppointmentController {
   // Mettre à jour un rendez-vous
   async update(req, res) {
     try {
-      const appointment = await AppointmentService.update(
+      const appointment = await new AppointmentService().update(
         req.params.id,
         req.body,
       );
