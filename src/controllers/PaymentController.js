@@ -5,23 +5,26 @@ const { control_phone_number, generateTicket } = require("../utils/Control");
 
 class PaymentController {
   async pay(req, res) {
+    // console.log(req.body);
+
     try {
-      const user = await User.findOneById(req.body.userId);
+      const user = await User.findById(req.body.userId);
 
       const validpassword = await bcrypt.compare(
         req.body.password,
         user.password,
       );
-      if (!validpassword)
+      if (!validpassword) {
         return res.status(400).json({
           message: "invalid password",
           error: { password: true },
           success: false,
         });
-
+      }
       const error = control_phone_number(req.body.phone_number);
+      console.log(error);
       if (!error.ok)
-        res.status(400).json({
+        return res.status(400).json({
           success: false,
           error: {
             phone: true,
@@ -30,12 +33,13 @@ class PaymentController {
         });
 
       const payment = await PaymentService.PayFirst(req.body);
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: payment,
         message: "Paiement effectué avec succès",
       });
     } catch (error) {
+      console.log(error);
       res.status(400).json({
         success: false,
         message: error.message,
@@ -45,6 +49,20 @@ class PaymentController {
 
   async paytotal(req, res) {
     try {
+      console.log(req.body);
+      const user = await User.findById(req.body.userId);
+      const validpassword = await bcrypt.compare(
+        req.body.password,
+        user.password,
+      );
+      if (!validpassword) {
+        return res.status(400).json({
+          message: "invalid password",
+          error: { password: true },
+          success: false,
+        });
+      }
+
       const payment = await PaymentService.PayTotal(req.body);
       res.status(201).json({
         success: true,
@@ -88,4 +106,3 @@ class PaymentController {
 }
 
 module.exports = new PaymentController();
-

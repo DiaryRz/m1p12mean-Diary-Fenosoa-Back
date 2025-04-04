@@ -7,9 +7,10 @@ const UserService = require("../services/UserService");
 const ServiceService = require("../services/ServiceService");
 const HistoryAppointmentService = require("./HistoryAppointmentService");
 const ConfigService = require("./ConfigService");
+const crypto = require("crypto");
 
 class AppointmentService {
-  static async create(appointmentData) {
+  async create(appointmentData) {
     try {
       const userExists = await UserService.getUserById(appointmentData.id_user);
       const carExists = await CarService.getCarById(appointmentData.id_car);
@@ -22,7 +23,7 @@ class AppointmentService {
       }
 
       const appointmentService = new AppointmentService();
-      const detailsPrice = await appointmentService.price_appointement(
+      const detailsPrice = await appointmentService.price_appointment(
         appointmentData.id_car,
         appointmentData.services,
       );
@@ -40,24 +41,24 @@ class AppointmentService {
 
       const appointment = new Appointment(appointmentData);
 
-      const savedAppointement = await appointment.save();
+      const savedappointment = await appointment.save();
 
       const detailsWithAppointmentId = detailsPrice.map((detail) => ({
         ...detail,
-        id_appointement: savedAppointement._id,
+        id_appointment: savedappointment._id,
       }));
 
       await PriceDetails.insertMany(detailsWithAppointmentId);
 
-      return savedAppointement;
+      return savedappointment;
     } catch (error) {
       throw error;
     }
   }
 
-  async addDate_appointment(date_appointment, id_appointement) {
+  async addDate_appointment(date_appointment, id_appointment) {
     try {
-      const appointment = await Appointment.findById(id_appointement)
+      const appointment = await Appointment.findById(id_appointment)
         .populate("id_user")
         .populate("id_car")
         .populate("services");
@@ -74,6 +75,7 @@ class AppointmentService {
 
       // Mettre à jour le rendez-vous
       appointment.date_appointment = date_appointment;
+      appointment.status = "validé";
       const updatedAppointment = await appointment.save();
 
       return updatedAppointment;
@@ -83,7 +85,7 @@ class AppointmentService {
     }
   }
 
-  async price_appointement(id_car, services) {
+  async price_appointment(id_car, services) {
     if (!Array.isArray(services)) {
       throw new Error("services doit être un tableau");
     }
@@ -102,7 +104,7 @@ class AppointmentService {
 
     //tableau détaillé des prix
     const priceDetails = servicesData.map((service) => ({
-      id_appointement: null,
+      id_appointment: null,
       service_id: service._id,
       service_name: service.service_name,
       base_price: service.unit_price,
@@ -114,12 +116,52 @@ class AppointmentService {
     return priceDetails;
   }
 
-  async getAll() {
+  async getAll(page, itemsPerPage) {
+    const skip = (page - 1) * itemsPerPage;
     try {
-      return await Appointment.find()
+      const results = await Appointment.find()
+        .populate("id_user")
+        .populate("id_car")
+        .populate("services")
+        .skip(skip)
+        .limit(itemsPerPage);
+      const totalDocuments = await Appointment.countDocuments({});
+      const totalPages = Math.ceil(totalDocuments / itemsPerPage);
+
+      return {
+        data: results,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPages,
+          totalDocuments: totalDocuments,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getCond(cond, page, itemsPerPage) {
+    try {
+      const results = await Appointment.find(cond)
         .populate("id_user")
         .populate("id_car")
         .populate("services");
+
+      const totalDocuments = await Appointment.countDocuments(cond);
+      const totalPages = Math.ceil(totalDocuments / itemsPerPage);
+
+      return {
+        data: results,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPages,
+          totalDocuments: totalDocuments,
+          hasNextPage: page < totalPages && totalDocuments > 0,
+          hasPrevPage: page > 1,
+        },
+      };
     } catch (error) {
       throw error;
     }
@@ -138,8 +180,10 @@ class AppointmentService {
 
   async createHistoryRecord(appointment, modificationType) {
     const historyData = {
-      date_appointement: appointment.date_appointement,
+      date_appointment: appointment.date_appointment,
       id_client: appointment.id_user,
+      id_user: appointment.id_user,
+      date_reservation_request: appointment.date_reservation_request,
       id_car: appointment.id_car,
       services: appointment.services,
       total_price: appointment.total_price,
@@ -154,10 +198,7 @@ class AppointmentService {
   }
 
   async update(id, appointmentData) {
-    const session = await mongoose.startSession();
     try {
-      session.startTransaction();
-
       // Get original appointment
       const originalAppointment = await Appointment.findById(id);
       if (!originalAppointment) {
@@ -171,24 +212,18 @@ class AppointmentService {
       const updatedAppointment = await Appointment.findByIdAndUpdate(
         id,
         appointmentData,
-        { new: true, session },
+        { new: true },
       );
 
-      await session.commitTransaction();
       return updatedAppointment;
     } catch (error) {
-      await session.abortTransaction();
+      console.error("Update error:", error);
       throw error;
-    } finally {
-      session.endSession();
     }
   }
 
   async delete(id) {
-    const session = await mongoose.startSession();
     try {
-      session.startTransaction();
-
       // Get appointment before deletion
       const appointment = await Appointment.findById(id);
       if (!appointment) {
@@ -199,17 +234,11 @@ class AppointmentService {
       await this.createHistoryRecord(appointment, "delete");
 
       // Delete appointment
-      const deletedAppointment = await Appointment.findByIdAndDelete(id, {
-        session,
-      });
+      const deletedAppointment = await Appointment.findByIdAndDelete(id, {});
 
-      await session.commitTransaction();
       return deletedAppointment;
     } catch (error) {
-      await session.abortTransaction();
       throw error;
-    } finally {
-      session.endSession();
     }
   }
 
@@ -347,9 +376,9 @@ class AppointmentService {
   }
 
   //l'admin confirme le rendez-vous
-  async confirmAppointment(id_appointement) {
+  async confirmAppointment(id_appointment) {
     try {
-      const appointment = await Appointment.findById(id_appointement)
+      const appointment = await Appointment.findById(id_appointment)
         .populate("id_user")
         .populate("id_car")
         .populate("services");
@@ -365,7 +394,7 @@ class AppointmentService {
       );
 
       // Mettre à jour le rendez-vous
-      appointment.status = "validé";
+      appointment.status = "moitié";
       const updatedAppointment = await appointment.save();
 
       return updatedAppointment;
@@ -533,6 +562,26 @@ class AppointmentService {
     }
   }
 
+  async getAppointmentsWaiting(userId) {
+    try {
+      const appointments = await Appointment.find({
+        id_user: userId,
+        status: "en attente",
+      })
+        .populate("id_user")
+        .populate({ path: "id_car", populate: { path: "category_id" } })
+        .populate("services")
+        .sort({ date_appointment: -1 }); // Du plus récent au plus ancien
+
+      if (!appointments) {
+        throw new Error("Aucun rendez-vous trouvé pour cet utilisateur");
+      }
+      return appointments;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getAppointmentsVerified(userId) {
     try {
       const appointments = await Appointment.find({
@@ -557,6 +606,7 @@ class AppointmentService {
   async updateDateDeposition(id) {
     try {
       const appointment = await Appointment.findById(id);
+      // console.log(appointment);
       if (!appointment) {
         throw new Error("Rendez-vous non trouvé");
       }

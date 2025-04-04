@@ -5,16 +5,17 @@ const User = require("../models/Users"); // Adjust path as needed
 const { verifyToken } = require("../services/AuthService");
 
 // Get user's notifications
-router.get("/:context", verifyToken, async (req, res) => {
+router.post("/all/:context", verifyToken, async (req, res) => {
   const cond =
     req.params.context == "client"
-      ? { recipient: req.user._id }
+      ? { recipient: req.body.userId }
       : req.params.context == "manager"
         ? { role: "manager" }
         : req.params.context == "mechanics"
           ? { role: "mechanics" }
           : { role: "employee" };
 
+  console.log(cond);
   try {
     const notifications = await Notification.find(cond)
       .sort({ createdAt: -1 })

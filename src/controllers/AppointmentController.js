@@ -4,7 +4,7 @@ class AppointmentController {
   // Créer un nouveau rendez-vous
   async create(req, res) {
     try {
-      const appointment = await AppointmentService.create(req.body);
+      const appointment = await new AppointmentService().create(req.body);
       res.status(201).json({
         success: true,
         data: appointment,
@@ -21,7 +21,10 @@ class AppointmentController {
   // Récupérer tous les rendez-vous
   async getAll(req, res) {
     try {
-      const appointments = await AppointmentService.getAll();
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 10;
+      const appointmentService = new AppointmentService();
+      const appointments = await appointmentService.getAll(page, limit);
       res.status(200).json({
         success: true,
         data: appointments,
@@ -34,6 +37,27 @@ class AppointmentController {
     }
   }
 
+  async getCond(req, res) {
+    try {
+      const appointmentService = new AppointmentService();
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 10;
+      const appointments = await appointmentService.getCond(
+        req.body.cond,
+        page,
+        limit,
+      );
+      res.status(200).json({
+        success: true,
+        data: appointments,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
   // Récupérer un rendez-vous par son ID
   async getById(req, res) {
     try {
@@ -71,7 +95,7 @@ class AppointmentController {
   // Mettre à jour un rendez-vous
   async update(req, res) {
     try {
-      const appointment = await AppointmentService.update(
+      const appointment = await new AppointmentService().update(
         req.params.id,
         req.body,
       );
@@ -97,7 +121,7 @@ class AppointmentController {
   // Mettre à jour le statut d'un rendez-vous
   async updateStatus(req, res) {
     try {
-      const appointment = await AppointmentService.updateStatus(
+      const appointment = await new AppointmentService().updateStatus(
         req.params.id,
         req.body.status,
       );
@@ -123,7 +147,7 @@ class AppointmentController {
   // Supprimer un rendez-vous
   async delete(req, res) {
     try {
-      const appointment = await AppointmentService.delete(req.params.id);
+      const appointment = await new AppointmentService().delete(req.params.id);
       if (!appointment) {
         return res.status(404).json({
           success: false,
@@ -351,6 +375,33 @@ class AppointmentController {
     }
   }
 
+  async getAppointmentsWaiting(req, res) {
+    try {
+      const { userId } = req.params;
+
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: "L'ID de l'utilisateur est requis",
+        });
+      }
+
+      const appointmentService = new AppointmentService();
+      const appointments =
+        await appointmentService.getAppointmentsWaiting(userId);
+      res.status(200).json({
+        success: true,
+        data: appointments,
+        message: "Rendez-vous récupérés avec succès",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
   async getAppointmentsVerified(req, res) {
     try {
       const { userId } = req.params;
@@ -381,7 +432,7 @@ class AppointmentController {
   async updateDateDeposition(req, res) {
     try {
       const { id_appointment } = req.params;
-
+      console.log("id", id_appointment);
       if (!id_appointment) {
         return res.status(400).json({
           success: false,
@@ -390,7 +441,8 @@ class AppointmentController {
       }
 
       const appointmentService = new AppointmentService();
-      const appointment = await appointmentService.updateDateDeposition(id_appointment);
+      const appointment =
+        await appointmentService.updateDateDeposition(id_appointment);
 
       res.status(200).json({
         success: true,
@@ -425,7 +477,10 @@ class AppointmentController {
       }
 
       const appointmentService = new AppointmentService();
-      const appointment = await appointmentService.updateDatePickup(id_appointment, new Date(date_pick_up));
+      const appointment = await appointmentService.updateDatePickup(
+        id_appointment,
+        new Date(date_pick_up),
+      );
 
       res.status(200).json({
         success: true,

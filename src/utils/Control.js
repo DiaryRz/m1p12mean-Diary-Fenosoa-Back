@@ -1,3 +1,5 @@
+const crypto = require("crypto");
+
 const control_phone_number = (phone_number) => {
   try {
     if (!phone_number.startsWith("261")) {
@@ -14,7 +16,10 @@ const control_phone_number = (phone_number) => {
       };
       // throw new Error("Le numéro de téléphone doit contenir 12 chiffres avec le 261");
     }
-    return true;
+    return {
+      message: "OK",
+      ok: true,
+    };
   } catch (error) {
     return {
       message: "Erreur",
@@ -24,39 +29,15 @@ const control_phone_number = (phone_number) => {
   }
 };
 
-const generateTicket = () => {
-  // Générer la date et heure actuelle au format YYYYMMDDHHmmss
-  const now = new Date();
-  const dateStr =
-    now.getFullYear() +
-    String(now.getMonth() + 1).padStart(2, "0") +
-    String(now.getDate()).padStart(2, "0") +
-    String(now.getHours()).padStart(2, "0") +
-    String(now.getMinutes()).padStart(2, "0") +
-    String(now.getSeconds()).padStart(2, "0");
+const generateTicket = (immatriculation) => {
+  const platePart = immatriculation.replace(/[ ]/g, "");
 
-  // Générer 4 lettres aléatoires
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let randomLetters = "";
-  for (let i = 0; i < 4; i++) {
-    randomLetters += letters.charAt(Math.floor(Math.random() * letters.length));
-  }
-
-  // Générer 4 chiffres aléatoires
-  const randomNumbers = String(Math.floor(Math.random() * 10000)).padStart(
-    4,
-    "0",
-  );
-
-  let randomLetters2 = "";
-  for (let i = 0; i < 4; i++) {
-    randomLetters2 += letters.charAt(
-      Math.floor(Math.random() * letters.length),
-    );
-  }
-
-  // Combiner le tout
-  return `${dateStr}${randomLetters}${randomNumbers}${randomLetters2}`;
+  const datePart = new Date()
+    .toISOString()
+    .replace(/[-:T.]/g, "")
+    .slice(0, 12);
+  const randomPart = crypto.randomBytes(4).toString("hex").toUpperCase();
+  return `PK-${platePart}-${datePart}-${randomPart}`;
 };
 
 module.exports = {
