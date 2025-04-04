@@ -14,7 +14,9 @@ class WorkService {
       if (!appointment) {
         throw new Error("Rendez-vous non trouvé");
       }
-
+      if (!workData.begin) {
+        workData.status = "pending";
+      }
       const work = new Work(workData);
       const savedWork = await work.save();
 

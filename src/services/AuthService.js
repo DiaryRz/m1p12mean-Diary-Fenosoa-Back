@@ -131,32 +131,88 @@ const login = async (req, res) => {
     });
 
   const { accessToken, refreshToken } = generateTokens(user);
-  res.json({ accessToken, refreshToken, userId: user._id });
+  res.json({
+    accessToken,
+    refreshToken,
+    userId: user._id,
+    role: user.role_id.role_name,
+  });
 };
 
 const refresh = async (req, res) => {
-  // Get both refreshToken and accessToken from the request
-  const refreshToken = get_token(req, "refreshToken");
-  const accessToken = get_token(req, "accessToken"); // Add this line
-
-  if (!refreshToken || !accessToken) {
-    return res.status(401).json({
-      success: false,
-      message: "Both access and refresh tokens are required",
-    });
-  }
-
   try {
-    // Verify refresh token (must be valid)
-    const decodedRefresh = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    // Get both refreshToken and accessToken from the request
+    const refreshToken = get_token(req, "refreshToken");
+    const accessToken = get_token(req, "accessToken");
 
-    // Verify access token (ignore expiration)
-    const decodedAccess = jwt.verify(accessToken, process.env.ACCESS_SECRET, {
-      ignoreExpiration: true,
-    });
+    // Validate token presence
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token is required",
+      });
+    }
+
+    if (!accessToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Access token is required",
+      });
+    }
+
+    // Check if environment variables exist
+    if (!process.env.REFRESH_SECRET || !process.env.ACCESS_SECRET) {
+      console.error("Missing JWT secret keys in environment variables");
+      return res.status(500).json({
+        success: false,
+        message: "Server configuration error",
+      });
+    }
+
+    // Verify refresh token first (must be valid)
+    let decodedRefresh;
+    try {
+      decodedRefresh = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    } catch (tokenError) {
+      if (tokenError instanceof jwt.TokenExpiredError) {
+        return res.status(403).json({
+          success: false,
+          error: { expire_refresh: true },
+          message: "Refresh token expired",
+        });
+      } else {
+        // This includes jwt.JsonWebTokenError for malformed tokens
+        return res.status(403).json({
+          success: false,
+          message: `Invalid refresh token: ${tokenError.message}`,
+        });
+      }
+    }
+
+    // Now verify access token (ignore expiration)
+    let decodedAccess;
+    try {
+      decodedAccess = jwt.verify(accessToken, process.env.ACCESS_SECRET, {
+        ignoreExpiration: true,
+      });
+    } catch (tokenError) {
+      return res.status(403).json({
+        success: false,
+        message: `Invalid access token: ${tokenError.message}`,
+      });
+    }
+
+    // Verify that both tokens belong to the same user
+    if (decodedRefresh.id !== decodedAccess.id) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Token mismatch: access and refresh tokens are for different users",
+      });
+    }
 
     // Check if user exists
-    const user = await User.findById(decodedRefresh.id); // or decodedAccess.id
+    const user = await User.findById(decodedRefresh.id);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -171,6 +227,7 @@ const refresh = async (req, res) => {
         success: true,
         regenerate: false,
         message: "Access token is still valid",
+        userId: user._id,
       });
     }
 
@@ -178,29 +235,15 @@ const refresh = async (req, res) => {
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
       generateTokens(user);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       regenerate: true,
       accessToken: newAccessToken,
+      refreshToken: newRefreshToken, // You might want to include this
       userId: user._id,
     });
   } catch (err) {
-    if (err instanceof jwt.TokenExpiredError) {
-      return res.status(403).json({
-        success: false,
-        error: { expire_refresh: true },
-        message: "Refresh token expired",
-      });
-    }
-
-    if (err instanceof jwt.JsonWebTokenError) {
-      return res.status(403).json({
-        success: false,
-        message: "Invalid token",
-      });
-    }
-
-    console.error("Refresh token error:", err);
+    console.error("Unexpected error during token refresh:", err);
     return res.status(500).json({
       success: false,
       message: "Internal server error during token refresh",

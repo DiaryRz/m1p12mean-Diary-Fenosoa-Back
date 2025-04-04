@@ -121,7 +121,7 @@ class AppointmentService {
     try {
       const results = await Appointment.find()
         .populate("id_user")
-        .populate("id_car")
+        .populate({ path: "id_car", populate: { path: "category_id" } })
         .populate("services")
         .skip(skip)
         .limit(itemsPerPage);
@@ -143,11 +143,15 @@ class AppointmentService {
     }
   }
   async getCond(cond, page, itemsPerPage) {
+    const skip = (page - 1) * itemsPerPage;
     try {
       const results = await Appointment.find(cond)
         .populate("id_user")
-        .populate("id_car")
-        .populate("services");
+        .populate({ path: "id_car", populate: { path: "category_id" } })
+        .populate("services")
+        .populate("services")
+        .skip(skip)
+        .limit(itemsPerPage);
 
       const totalDocuments = await Appointment.countDocuments(cond);
       const totalPages = Math.ceil(totalDocuments / itemsPerPage);

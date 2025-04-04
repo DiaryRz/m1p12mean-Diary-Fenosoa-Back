@@ -77,7 +77,6 @@ function setupSocketServer(server) {
         // Check if recipient is connected
 
         if (to_role && to_role != "client") {
-          console.log("\t send to room client");
           io.to(`employee_${to_role}`).emit("new-notification", notification);
         } else if (recipientId) {
           const recipient = connectedUsers.get(recipientId);

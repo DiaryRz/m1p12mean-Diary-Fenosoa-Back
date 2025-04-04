@@ -15,7 +15,6 @@ router.post("/all/:context", verifyToken, async (req, res) => {
           ? { role: "mechanics" }
           : { role: "employee" };
 
-  console.log(cond);
   try {
     const notifications = await Notification.find(cond)
       .sort({ createdAt: -1 })
