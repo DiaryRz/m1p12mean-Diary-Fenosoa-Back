@@ -20,7 +20,7 @@ const PayementService = {
         throw new Error("Rendez-vous non trouvé");
       }
 
-      if (appointment.status !== "validé") {
+      if (appointment.status !== "moitié") {
         throw new Error(
           "Soit le rendez-vous n'est pas encore validé soit le payement du 50% a déjà été effectué",
         );

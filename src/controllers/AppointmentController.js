@@ -4,7 +4,7 @@ class AppointmentController {
   // Créer un nouveau rendez-vous
   async create(req, res) {
     try {
-      const appointment = await AppointmentService.create(req.body);
+      const appointment = await new AppointmentService().create(req.body);
       res.status(201).json({
         success: true,
         data: appointment,
@@ -121,7 +121,7 @@ class AppointmentController {
   // Mettre à jour le statut d'un rendez-vous
   async updateStatus(req, res) {
     try {
-      const appointment = await AppointmentService.updateStatus(
+      const appointment = await new AppointmentService().updateStatus(
         req.params.id,
         req.body.status,
       );
@@ -147,7 +147,7 @@ class AppointmentController {
   // Supprimer un rendez-vous
   async delete(req, res) {
     try {
-      const appointment = await AppointmentService.delete(req.params.id);
+      const appointment = await new AppointmentService().delete(req.params.id);
       if (!appointment) {
         return res.status(404).json({
           success: false,

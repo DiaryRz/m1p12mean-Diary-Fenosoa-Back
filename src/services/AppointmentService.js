@@ -10,7 +10,7 @@ const ConfigService = require("./ConfigService");
 const crypto = require("crypto");
 
 class AppointmentService {
-  static async create(appointmentData) {
+  async create(appointmentData) {
     try {
       const userExists = await UserService.getUserById(appointmentData.id_user);
       const carExists = await CarService.getCarById(appointmentData.id_car);
@@ -158,7 +158,7 @@ class AppointmentService {
           currentPage: page,
           totalPages: totalPages,
           totalDocuments: totalDocuments,
-          hasNextPage: page < totalPages,
+          hasNextPage: page < totalPages && totalDocuments > 0,
           hasPrevPage: page > 1,
         },
       };
@@ -223,10 +223,7 @@ class AppointmentService {
   }
 
   async delete(id) {
-    const session = await mongoose.startSession();
     try {
-      session.startTransaction();
-
       // Get appointment before deletion
       const appointment = await Appointment.findById(id);
       if (!appointment) {
@@ -237,17 +234,11 @@ class AppointmentService {
       await this.createHistoryRecord(appointment, "delete");
 
       // Delete appointment
-      const deletedAppointment = await Appointment.findByIdAndDelete(id, {
-        session,
-      });
+      const deletedAppointment = await Appointment.findByIdAndDelete(id, {});
 
-      await session.commitTransaction();
       return deletedAppointment;
     } catch (error) {
-      await session.abortTransaction();
       throw error;
-    } finally {
-      session.endSession();
     }
   }
 
@@ -403,7 +394,7 @@ class AppointmentService {
       );
 
       // Mettre à jour le rendez-vous
-      appointment.status = "validé";
+      appointment.status = "moitié";
       const updatedAppointment = await appointment.save();
 
       return updatedAppointment;
