@@ -8,7 +8,7 @@ const WorkSchema = new mongoose.Schema({
   id_user: { type: String, ref: "User", required: true },
   status: {
     type: String,
-    enum: ["done", "ongoing", "pending"],
+    enum: ["done", "ongoing"],
     default: "ongoing",
   },
   datetime_service_start: { type: Date, required: true, default: Date.now },

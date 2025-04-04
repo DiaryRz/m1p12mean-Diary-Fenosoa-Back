@@ -3,14 +3,11 @@ const AmountByMonth = require("../../models/views/amount");
 const NbServicesByMonth = require("../../models/views/nb_appointment");
 
 class StatisticsService {
-  async getAppointmentsByMonth(year, month) {
+  async getAppointmentsByMonth(year) {
     try {
       const query = {};
       if (year) {
         query["_id.year"] = Number(year);
-      }
-      if (month) {
-        query["_id.month"] = Number(month);
       }
 
       const statistics = await AppointmentsByMonth.find(query);
@@ -42,14 +39,11 @@ class StatisticsService {
     }
   }
 
-  async getAmountByMonth(year, month) {
+  async getAmountByMonth(year) {
     try {
       const query = {};
       if (year) {
         query["_id.year"] = Number(year);
-      }
-      if (month) {
-        query["_id.month"] = Number(month);
       }
 
       const statistics = await AmountByMonth.find(query);
@@ -114,3 +108,4 @@ class StatisticsService {
 }
 
 module.exports = new StatisticsService();
+
