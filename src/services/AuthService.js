@@ -131,7 +131,12 @@ const login = async (req, res) => {
     });
 
   const { accessToken, refreshToken } = generateTokens(user);
-  res.json({ accessToken, refreshToken, userId: user._id });
+  res.json({
+    accessToken,
+    refreshToken,
+    userId: user._id,
+    role: user.role_id.role_name,
+  });
 };
 
 const refresh = async (req, res) => {

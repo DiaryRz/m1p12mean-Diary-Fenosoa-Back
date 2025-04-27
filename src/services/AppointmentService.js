@@ -142,15 +142,18 @@ class AppointmentService {
       throw error;
     }
   }
+
   async getCond(cond, page, itemsPerPage) {
     try {
       const results = await Appointment.find(cond)
         .populate("id_user")
-        .populate("id_car")
+        .populate({ path: "id_car", populate: { path: "category_id" } })
         .populate("services");
 
       const totalDocuments = await Appointment.countDocuments(cond);
       const totalPages = Math.ceil(totalDocuments / itemsPerPage);
+
+      console.log(results);
 
       return {
         data: results,
